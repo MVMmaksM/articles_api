@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express(express.json());
 
-const port = 3000;
+const port = 5000;
 const articles = [
     {
         article_id: 1,

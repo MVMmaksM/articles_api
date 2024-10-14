@@ -1,0 +1,11 @@
+version: "3"
+services:
+  article_api:
+    container_name: "article_api"
+    image: "article_api_image"
+    build: 
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports: 
+      - "5000:5000"
+    restart: on-failure
