@@ -29,8 +29,8 @@ app.get("/articles", (req, res)=>{
 });
 
 app.get("/articles/:id", (req, res) =>{
-    const article_id = req.params.id;
-    const article = articles[article_id];
+    const article_id = parseInt(req.params.id);
+    const article = articles.find(a => a.article_id === article_id);
 
     if(!article)
         throw Error("Article not found");
@@ -71,8 +71,7 @@ app.delete("/articles/:id", (req, res, next)=>{
     }    
 });
 
-app.use((err, req, res, next)=>{
-    console.log(err);
+app.use((err, req, res, next)=>{    
     res.status(500).json({errorCode: -1, errorMsg: err.message});
 });
 
