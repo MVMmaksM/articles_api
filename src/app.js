@@ -53,22 +53,27 @@ app.put("/articles/:id", (req, res)=>{
     res.json(articles[article_id]);
 });
 
-app.delete("/articles/:id", (req, res)=>{
+app.delete("/articles/:id", (req, res, next)=>{
     const article_id = req.params.id;
     
-    if(!article_id)
-        throw Error("Article id not found");
+    try {
+        if(!article_id)
+            throw Error("Article id not found");
+        
+        if(!articles[article_id])
+            throw Error("Article not found")
     
-    if(!articles[article_id])
-        throw Error("Article not found")
-
-    delete articles[article_id];
-    res.json({result: true});
+        delete articles[article_id];
+        res.json({result: true});
+    }
+    catch (err){
+        next(err);
+    }    
 });
 
 app.use((err, req, res, next)=>{
     console.log(err);
-    res.status(500).json({error: err.stack});
+    res.status(500).json({errorCode: -1, errorMsg: err.message});
 });
 
 app.use("/", (req, res)=> {
