@@ -1,0 +1,19 @@
+{
+  "name": "nodejs_learn",
+  "version": "1.0.0",
+  "description": "помойка",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MVMmaksM/nodejs_learn.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MVMmaksM/nodejs_learn/issues"
+  },
+  "homepage": "https://github.com/MVMmaksM/nodejs_learn#readme"
+}
