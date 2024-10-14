@@ -4,6 +4,7 @@
   "description": "помойка",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/MVMmaksM/nodejs_learn/issues"
   },
-  "homepage": "https://github.com/MVMmaksM/nodejs_learn#readme"
+  "homepage": "https://github.com/MVMmaksM/nodejs_learn#readme",
+  "devDependencies": {
+    "express": "^4.21.1"
+  }
 }
