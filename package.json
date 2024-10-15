@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "nodejs_learn",
   "version": "1.0.0",
   "description": "помойка",
