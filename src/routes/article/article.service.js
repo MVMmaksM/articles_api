@@ -3,22 +3,28 @@ let articles = [
         article_id: 1,
         title: "Тестовая статья один",
         author: "Тестовый автор один",
-        date_create: new Date().toISOString(),
-        note: "Teststststst"
+        create_on_tz: new Date().toISOString(),
+        note: "Teststststst",
+        update_on_tz: null,
+        is_delete: false
     },
     {
         article_id: 2,
         title: "Тестовая статья два",
         author: "Тестовый автор два",
-        date_create: new Date().toISOString(),
-        note: "Teststs"
+        create_on_tz: new Date().toISOString(),
+        note: "Teststs",
+        update_on_tz: null,
+        is_delete: false
     },
     {
         article_id: 3,
         title: "Тестовая статья три",
         author: "Тестовый автор три",
-        date_create: new Date().toISOString(),
-        note: "testststsst"
+        create_on_tz: new Date().toISOString(),
+        note: "testststsst",
+        update_on_tz: null,
+        is_delete: false
     },
 ]
 
@@ -28,8 +34,8 @@ const get_article_detail = (article_id)=>{
     return articles.find(a => a.article_id === article_id);
 }
 
-const get_articles = ()=>{
-    return articles;
+const get_articles = (is_delete)=>{
+    return articles.filter(a => a.is_delete === is_delete);
 }
 
 const create_article = ({title, author, note})=>{
@@ -47,4 +53,22 @@ const create_article = ({title, author, note})=>{
     return articles.find(a => a.article_id === seq_article);
 }
 
-export {get_article_detail, get_articles, create_article};
+const update_article = ({article_id, title, note}) => {
+    const index_article_updated = articles.indexOf(articles.find(a => a.article_id === article_id));  
+    
+    articles[index_article_updated].note = note;
+    articles[index_article_updated].title = title;
+    articles[index_article_updated].update_on_tz = new Date().toISOString()
+
+    return articles[index_article_updated];
+}
+
+const delete_article = (article_id)=>{
+    const index_article_deleted = articles.indexOf(articles.find(a => a.article_id === article_id));
+
+    articles[index_article_deleted].is_delete = true;
+
+    return true;
+}
+
+export {get_article_detail, get_articles, create_article, update_article, delete_article};
