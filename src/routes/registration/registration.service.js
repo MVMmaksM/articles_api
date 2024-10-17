@@ -1,7 +1,7 @@
 const users = [] 
 const confirmation_codes = []
 
-let seq_user = 2;
+let seq_user = 1;
 
 const registration_phone = (cred_phone)=>{    
     const phone_number = Buffer.from(cred_phone, "base64").toString();

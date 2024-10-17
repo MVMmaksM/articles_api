@@ -6,10 +6,25 @@ import registration_router from "./routes/registration/registration.routes.js"
 const app = express();
 app.use(express.json());
 
-const port = 5000;
+const http_port = 5000;
 
-app.use("/v1/registration", registration_router);
-app.use("/v1/articles", article_router);
+//устанавливаем время начала запроса
+app.use((req, res, next)=>{
+    req.startTime = (new Date).getTime();
+    //console.log(req.startTime);
+    next();
+});
+
+//время выполнения запроса
+app.use((req, res, next)=>{
+    res.on("finish", ()=>{
+        console.log((new Date).getTime() - req.startTime);      
+    });
+    next();
+});
+
+app.use("/api/v1/registration", registration_router);
+app.use("/api/v1/articles", article_router);
 
 app.use((err, req, res, next)=>{
     console.log(err.stack);    
@@ -20,6 +35,6 @@ app.use("/", (req, res)=> {
     res.status(404).json({errorCode: -1, errorMsg: "Route not found"});
 });
 
-app.listen(port, ()=>{
-    console.log(`server started, port: ${port}`);
+app.listen(http_port, ()=>{
+    console.log(`server started, port: ${http_port}`);
 });
