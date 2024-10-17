@@ -1,4 +1,4 @@
-import { registration_phone, confitmation_code } from "./registration.service.js";
+import { registration_phone, confirmation_code } from "./registration.service.js";
 import express from "express";
 const registration_router = express.Router();
 
@@ -17,7 +17,7 @@ registration_router.post("/phone", (req, res)=>{
 });
 
 registration_router.post("/phone/confirm", (req, res)=>{
-    const token = confitmation_code(req.headers["registration"]);
+    const token = confirmation_code(req.headers["registration"]);
 
     if(!token)
         throw Error("Неверно указан код подтверждения");
