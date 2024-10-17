@@ -18,7 +18,7 @@ app.use((req, res, next)=>{
 //время выполнения запроса
 app.use((req, res, next)=>{
     res.on("finish", ()=>{
-        console.log((new Date).getTime() - req.startTime);      
+        console.log(`request: ${req.originalUrl} | time: ${((new Date).getTime() - req.startTime)/1000}s`);      
     });
     next();
 });
