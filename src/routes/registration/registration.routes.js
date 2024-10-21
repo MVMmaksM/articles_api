@@ -17,12 +17,12 @@ registration_router.post("/phone", (req, res)=>{
 });
 
 registration_router.post("/phone/confirm", (req, res)=>{
-    const token = confirmation_code(req.headers["registration"]);
+    const res_confirm = confirmation_code(req.headers["confirmation"]); 
 
-    if(!token)
-        throw Error("Неверно указан код подтверждения");
+    if(!res_confirm)
+        throw Error("Ошибка при подтверждении кода");
 
-    res.json({token: token});
+    res.json({result: "Учетная запись успешно подтверждена, выполните вход"});
 });
 
 export default registration_router;

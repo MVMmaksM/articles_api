@@ -57,11 +57,10 @@ const confirmation_code = (confirm_code_id) =>{
     confirm_cred = confirm_cred.split(":");
     const res_confirm = confirmation_codes.find(c => c.code_id === parseInt(confirm_cred[0]) && c.code === parseInt(confirm_cred[1]));   
     
-    let token;
-    if(res_confirm)
-        token = get_token_user(confirm_cred[0], res_confirm.user_id);
+    if(!res_confirm)
+        throw Error("Неверно указан код или id");
 
-    return token;
+    return res_confirm;
 }
 
 const get_token_user = (confirm_code_id, user_id) =>{
