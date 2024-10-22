@@ -3,7 +3,7 @@ import article_router from "./routes/article/article.routes.js"
 import registration_router from "./routes/registration/registration.routes.js"
 import authentication_router from "./routes/authentication/authentication.routes.js";
 import { authorize } from "./middlewares/authorization.js";
-
+import {create_instance} from "./db/create_instance.js"
 
 const app = express();
 app.use(express.json());
@@ -40,5 +40,6 @@ app.use("/", (req, res)=> {
 });
 
 app.listen(http_port, ()=>{
+    global.instance = create_instance(()=>console.log("create instance"));
     console.log(`server started, port: ${http_port}`);
 });

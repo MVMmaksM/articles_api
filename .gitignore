@@ -1,2 +1,3 @@
 /node_modules
 /db/docker-compose.dev.yml
+/src/config/db.config.js
