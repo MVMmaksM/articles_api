@@ -24,7 +24,8 @@ const create_user_token = (user_id) =>{
         {
             user_tokens_id: seq_user_tokens, 
             user_id: user_id,
-            create_on_tz: new Date().toISOString() 
+            create_on_tz: new Date().toISOString(),
+            token: token_hash
         });
 
     return token;

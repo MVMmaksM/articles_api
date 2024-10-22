@@ -2,6 +2,7 @@ import express from "express";
 import article_router from "./routes/article/article.routes.js"
 import registration_router from "./routes/registration/registration.routes.js"
 import authentication_router from "./routes/authentication/authentication.routes.js";
+import { authorize } from "./middlewares/authorization.js";
 
 
 const app = express();
@@ -24,6 +25,7 @@ app.use((req, res, next)=>{
     next();
 });
 
+app.use("/", authorize);
 app.use("/api/v1/authentication", authentication_router);
 app.use("/api/v1/registration", registration_router);
 app.use("/api/v1/articles", article_router);
