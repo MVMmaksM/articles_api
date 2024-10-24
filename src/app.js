@@ -25,12 +25,13 @@ app.use((req, res, next)=>{
     next();
 });
 
-app.use("/", authorize);
-app.use("/api/v1/authentication", authentication_router);
 app.use("/api/v1/registration", registration_router);
+app.use("/api/v1/authentication", authentication_router);
+
+app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
 
-app.use((err, req, res, next)=>{
+app.use(async (err, req, res, next)=>{
     console.log(err.stack);    
     res.status(500).json({errorCode: -1, errorMsg: err.message});
 });
@@ -40,6 +41,7 @@ app.use("/", (req, res)=> {
 });
 
 app.listen(http_port, ()=>{
-    global.instance = create_instance(()=>console.log("create instance"));
+    global.instance = create_instance();
+    console.log("create instance");
     console.log(`server started, port: ${http_port}`);
 });

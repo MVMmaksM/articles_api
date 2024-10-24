@@ -1,65 +1,54 @@
-//надо БД прикручивать
-global.users = []
-global.confirmation_codes = []
-global.user_tokens = []
+import Users from "../../db/models/users.js";
+import ConfirmationCodes from "../../db/models/confirmation_codes.js";
 
-global.seq_user = 1;
-global.seq_code = 1;
-global.seq_user_tokens = 1;
+const registration_phone = async(cred_phone)=>{   
+    const instance = global.instance; 
 
-const registration_phone = (cred_phone)=>{    
     let phone_number = Buffer.from(cred_phone, "base64").toString();
     phone_number = parseInt(phone_number);
     
     if(!phone_number)
         throw Error("Неверно указан номер телефона");
-
-    const user = global.users.find(u => u.phone === phone_number);
+    
+    const user = await Users.find_user_phone(instance, phone_number);  
 
     if(user)
         throw Error("Пользователь с таким номером телефона уже существует!");
 
-    global.seq_user = seq_user + 1;
-
-    const new_user = 
-    {
-        user_id: seq_user,
-        phone: phone_number,
-        login: null,
-        password: null,
-        create_on_tz: new Date().toISOString(),
-        confirm: false
-    }
-
-    global.users.push(new_user);   
-
-    const confirmation_code = Math.floor(Math.random() * (999999 - 0) + 0);   
-    global.seq_code = seq_code + 1;
-    global.confirmation_codes.push(
+    const user_id = await Users.create_user(instance, 
         {
-            code_id: seq_code,
-            user_id: seq_user,
-            code: confirmation_code,
-            create_on_tz: new Date().toISOString()
-        });
+            phone: phone_number,
+            login: null,
+            password: null
+        });  
 
-    console.log(global.confirmation_codes);
-    return seq_code;
+    const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);   
+
+    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code);   
+
+    return code_id;
 }
 
-const confirmation_code = (confirm_code_id) =>{
+const confirmation_code = async (confirm_code_id) =>{
+    if(!confirm_code_id)
+        throw Error("Не указан код подтверждения");
+
     let confirm_cred = Buffer.from(confirm_code_id, "base64").toString(); 
 
     if(!confirm_cred)
         throw Error("Не указан код подтверждения");
 
     confirm_cred = confirm_cred.split(":");
-    const res_confirm = global.confirmation_codes.find(c => c.code_id === parseInt(confirm_cred[0]) && c.code === parseInt(confirm_cred[1]));   
     
-    if(!res_confirm)
-        throw Error("Неверно указан код или id");
+    if(!confirm_cred[0] || !confirm_cred[1])
+        throw Error("Неверно указан код или code_id");
 
-    return res_confirm;
+    const code_id = await ConfirmationCodes.find_code_code_id(instance, confirm_cred[0], confirm_cred[1]);   
+    
+    if(!code_id)
+        throw Error("Неверно указан код или code_id");
+
+    return code_id;
 }
 
 export {registration_phone, confirmation_code}
