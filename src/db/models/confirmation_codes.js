@@ -13,8 +13,8 @@ class ConfirmationCodes {
     } 
 
     static async find_code_code_id(instance, code_id, code){       
-        const result = await instance.raw(`SELECT code_id FROM public.confirmation_codes WHERE code_id = ? AND code = ?`, [code_id ?? null, code ?? null]);
-        return result?.rows[0];
+        const result = await instance.raw(`SELECT user_id FROM public.confirmation_codes WHERE code_id = ? AND code = ?`, [code_id ?? null, code ?? null]);
+        return result?.rows[0].user_id;
     }
 }
 

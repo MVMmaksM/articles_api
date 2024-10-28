@@ -1,29 +1,45 @@
 import { access_user, create_confirm_code, create_user_token } from "./authentication.service.js";
 import { confirmation_code } from "../registration/registration.service.js";
+import ERRORS from "../../errors/error_codes.js";
 import express from "express";
-const authentication_router = express.Router();
+import AppError from "../../errors/app_error.js";
 
-authentication_router.post("/phone", (req, res) =>{
-    const cred_phone = req.headers["authentication"]; 
+const auth_router = express.Router();
 
-    if(!cred_phone)
-        throw Error("Не передан номер телефона");
+auth_router.post("/phone", async (req, res, next) =>{
+    try{
+        const cred_phone = req.headers["authentication"]; 
 
-    const user_id = access_user(cred_phone); 
-    const code_id = create_confirm_code(user_id); 
-   
-    res.json({code_id: code_id});
+        if(!cred_phone)
+            throw new AppError(ERRORS.NOT_PHONE.error_message, 500, ERRORS.NOT_PHONE.error_code);
+
+        const user_id = await access_user(cred_phone); 
+        const code_id = await create_confirm_code(user_id); 
+    
+        res.json({code_id: code_id});
+    }catch(err){
+        next(err);
+    }    
 });
 
-authentication_router.post("/phone/confirm", (req, res)=>{
-    const res_confirm = confirmation_code(req.headers["confirmation"]); 
+auth_router.post("/phone/confirm", async(req, res, next)=>{
+    try{
+        const confirm_code = req.headers["confirmation"];
 
-    if(!res_confirm)
-        throw Error("Ошибка при подтверждении кода");
-
-    const user_token = create_user_token(res_confirm.user_id);
-
-    res.json({user_token: user_token});
+        if(!confirm_code)
+            throw new AppError(ERRORS.NOT_CONFIRM_CODE.error_message, 500, ERRORS.NOT_CONFIRM_CODE.error_code);
+    
+        const user_id = await confirmation_code(confirm_code); 
+    
+        if(!user_id)
+            throw new AppError(ERRORS.ERR_CONFIRM.error_message, 500, ERRORS.ERR_CONFIRM.error_code);
+    
+        const user_token = await create_user_token(user_id);
+    
+        res.json({user_token: user_token});
+    }catch(err){
+        next(err);
+    }
 });
 
-export default authentication_router;
+export default auth_router;
