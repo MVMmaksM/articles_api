@@ -9,6 +9,11 @@ class UserTokens {
     static async get_sequence(instance){
         return (await instance.raw(`SELECT nextval('user_tokens_user_token_id_seq')`))?.rows[0]?.nextval;
     }
+
+    static async find_user_token(instance, token){
+        return await instance.raw(`SELECT user_id FROM public.user_tokens 
+                                   WHERE token = ?`, [token]);
+    }
 }
 
 export default UserTokens;
