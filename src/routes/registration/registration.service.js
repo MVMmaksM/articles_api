@@ -1,5 +1,7 @@
 import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
+import AppError from "../../errors/app_error.js";
+import ERRORS from "../../errors/error_codes.js";
 
 const registration_phone = async(cred_phone)=>{   
     const instance = global.instance; 
@@ -8,12 +10,12 @@ const registration_phone = async(cred_phone)=>{
     phone_number = parseInt(phone_number);
     
     if(!phone_number)
-        throw Error("Неверно указан номер телефона");
+        throw new AppError(ERRORS.NOT_VALID_PHONE.error_message, 500, ERRORS.NOT_VALID_PHONE.error_code);
     
     const user = await Users.find_user_phone(instance, phone_number);  
 
     if(user)
-        throw Error("Пользователь с таким номером телефона уже существует!");
+        throw new AppError(ERRORS.EXIST_PHONE.error_message, 500, ERRORS.EXIST_PHONE.error_code);
 
     const user_id = await Users.create_user(instance, 
         {
@@ -31,22 +33,22 @@ const registration_phone = async(cred_phone)=>{
 
 const confirmation_code = async (confirm_code_id) =>{
     if(!confirm_code_id)
-        throw Error("Не указан код подтверждения");
+        throw new AppError(ERRORS.NOT_CONFIRM_CODE.error_message, 500, ERRORS.NOT_CONFIRM_CODE.error_code);
 
     let confirm_cred = Buffer.from(confirm_code_id, "base64").toString(); 
 
     if(!confirm_cred)
-        throw Error("Не указан код подтверждения");
+        throw new AppError(ERRORS.NOT_CONFIRM_CODE.error_message, 500, ERRORS.NOT_CONFIRM_CODE.error_code);
 
     confirm_cred = confirm_cred.split(":");
     
     if(!confirm_cred[0] || !confirm_cred[1])
-        throw Error("Неверно указан код или code_id");
+        throw new AppError(ERRORS.NOT_VALID_CONF_CODE.error_message, 500, ERRORS.NOT_VALID_CONF_CODE.error_code);
 
     const code_id = await ConfirmationCodes.find_code_code_id(instance, confirm_cred[0], confirm_cred[1]);   
     
     if(!code_id)
-        throw Error("Неверно указан код или code_id");
+        throw new AppError(ERRORS.NOT_VALID_CONF_CODE.error_message, 500, ERRORS.NOT_VALID_CONF_CODE.error_code);
 
     return code_id;
 }

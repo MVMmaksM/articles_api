@@ -33,7 +33,7 @@ app.use("/api/v1/articles", article_router);
 
 app.use(async (err, req, res, next)=>{
     console.log(err.stack);    
-    res.status(500).json({errorCode: -1, errorMsg: err.message});
+    res.status(err.status_code || 500).json({error_code: err.error_code || -1, error_msg: err.message});
 });
 
 app.use("/", (req, res)=> {
