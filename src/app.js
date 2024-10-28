@@ -4,6 +4,9 @@ import registration_router from "./routes/registration/registration.routes.js"
 import authentication_router from "./routes/authentication/authentication.routes.js";
 import { authorize } from "./middlewares/authorization.js";
 import {create_instance} from "./db/create_instance.js"
+import error_handler from "./middlewares/errors_handler.js";
+import route_not_found from "./middlewares/route_not_found.js"
+import {res_start_time, res_end_time} from "./middlewares/responce_time.js"
 
 const app = express();
 app.use(express.json());
@@ -11,19 +14,9 @@ app.use(express.json());
 const http_port = 5000;
 
 //устанавливаем время начала запроса
-app.use((req, res, next)=>{
-    req.startTime = (new Date).getTime();
-    //console.log(req.startTime);
-    next();
-});
-
+app.use(res_start_time);
 //время выполнения запроса
-app.use((req, res, next)=>{
-    res.on("finish", ()=>{
-        console.log(`${req.originalUrl} | time: ${((new Date).getTime() - req.startTime)/1000}s`);      
-    });
-    next();
-});
+app.use(res_end_time);
 
 app.use("/api/v1/registration", registration_router);
 app.use("/api/v1/authentication", authentication_router);
@@ -31,14 +24,10 @@ app.use("/api/v1/authentication", authentication_router);
 app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
 
-app.use(async (err, req, res, next)=>{
-    console.log(err.stack);    
-    res.status(err.status_code || 500).json({error_code: err.error_code || -1, error_msg: err.message});
-});
-
-app.use("/", (req, res)=> {
-    res.status(404).json({errorCode: -1, errorMsg: "Route not found"});
-});
+//обработчик ошибок
+app.use("/", error_handler);
+//не найден роут
+app.use("/", route_not_found);
 
 app.listen(http_port, ()=>{
     global.instance = create_instance();

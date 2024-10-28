@@ -26,6 +26,10 @@ const ERRORS = {
     NOT_VALID_CONF_CODE:{
         error_code: 106,
         error_message: "Неверно указан код подтверждения или идентификатор code_id"
+    },
+    ROUTE_NOT_FOUND: {
+        error_code: 404,
+        error_message: "Роут не найден"
     }
 }
 
