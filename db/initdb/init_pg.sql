@@ -54,3 +54,25 @@ CREATE TABLE public.users (
 	CONSTRAINT users_pkey PRIMARY KEY (user_id)
 );
 CREATE INDEX ix_users_phone ON public.users USING btree (phone);
+
+
+-- public.articles определение
+
+-- Drop table
+
+-- DROP TABLE public.articles;
+
+CREATE TABLE public.articles (
+	article_id serial4 NOT NULL,
+	author_id int4 NOT NULL,
+	"name" varchar(256) NULL,
+	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
+	update_on_tz timestamp NULL,
+	CONSTRAINT articles_pkey PRIMARY KEY (article_id)
+);
+CREATE INDEX ix_articles_author_id ON public.articles USING btree (author_id);
+
+
+-- public.articles внешние включи
+
+ALTER TABLE public.articles ADD CONSTRAINT articles_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(user_id);
