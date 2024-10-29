@@ -64,15 +64,32 @@ CREATE INDEX ix_users_phone ON public.users USING btree (phone);
 
 CREATE TABLE public.articles (
 	article_id serial4 NOT NULL,
-	author_id int4 NOT NULL,
+	created_by int4 NOT NULL,
 	"name" varchar(256) NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
 	update_on_tz timestamp NULL,
 	CONSTRAINT articles_pkey PRIMARY KEY (article_id)
 );
-CREATE INDEX ix_articles_author_id ON public.articles USING btree (author_id);
+CREATE INDEX ix_articles_created_by ON public.articles USING btree (created_by);
 
 
 -- public.articles внешние включи
 
-ALTER TABLE public.articles ADD CONSTRAINT articles_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(user_id);
+ALTER TABLE public.articles ADD CONSTRAINT articles_author_id_fkey FOREIGN KEY (created_by) REFERENCES public.users(user_id);
+
+-- public.article_notes определение
+
+-- Drop table
+
+-- DROP TABLE public.article_notes;
+
+CREATE TABLE public.article_notes (
+	article_id int4 NOT NULL,
+	note text NOT NULL,
+	CONSTRAINT article_notes_pkey PRIMARY KEY (article_id)
+);
+
+
+-- public.article_notes внешние включи
+
+ALTER TABLE public.article_notes ADD CONSTRAINT article_notes_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);

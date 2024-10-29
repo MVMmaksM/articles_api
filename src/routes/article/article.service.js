@@ -1,3 +1,5 @@
+import Articles from "../../db/models/articles.js"
+
 let articles = [
     {
         article_id: 1,
@@ -34,8 +36,9 @@ const get_article_detail = (article_id)=>{
     return articles.find(a => a.article_id === article_id);
 }
 
-const get_articles = (is_delete)=>{
-    return articles.filter(a => a.is_delete === is_delete);
+const get_articles = async()=>{
+    const instance = global.instance;
+    return await Articles.get_articles(instance);
 }
 
 const create_article = ({title, author, note})=>{

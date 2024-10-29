@@ -3,11 +3,13 @@ import express from "express";
 const article_router = express.Router();
 
 //получение всех статей
-article_router.get("/", (req, res)=>{
-    const is_delete = req.query.is_delete === "1" ? true : false;   
-
-    const articles = get_articles(is_delete);
-    res.json(articles);
+article_router.get("/", async(req, res, next)=>{
+    try{        
+        const articles = await get_articles();
+        res.json(articles);
+    }catch(err){
+        next(err);
+    }
 });
 
 //полчуние детализации статьи
