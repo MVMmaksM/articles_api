@@ -1,4 +1,6 @@
 import Articles from "../../db/models/articles.js"
+import AppError from "../../errors/app_error.js";
+import ERRORS from "../../errors/error_codes/error_codes_article.js";
 
 let articles = [
     {
@@ -36,9 +38,27 @@ const get_article_detail = (article_id)=>{
     return articles.find(a => a.article_id === article_id);
 }
 
-const get_articles = async()=>{
+const get_articles = async(query_start, query_count)=>{
+    const start = parseInt(query_start);
+    const count = parseInt(query_count);
+
+    if(!start)
+        throw new AppError(ERRORS.NOT_VALID_START.error_message, 500, ERRORS.NOT_VALID_START.error_code);
+
+    if(!count)
+        throw new AppError(ERRORS.NOT_VALID_COUNT.error_message, 500, ERRORS.NOT_VALID_COUNT.error_code);
+
+    if(start < 1)
+        throw new AppError(ERRORS.MIN_VALUE_START.error_message, 500, ERRORS.MIN_VALUE_START.error_code);
+
+    if(count > 200)
+        throw new AppError(ERRORS.MAX_VALUE_COUNT.error_message, 500, ERRORS.MAX_VALUE_COUNT.error_code);
+
+    if(count < 1)
+        throw new AppError(ERRORS.MIN_VALUE_COUNT.error_message, 500, ERRORS.MIN_VALUE_COUNT.error_code);
+
     const instance = global.instance;
-    return await Articles.get_articles(instance);
+    return await Articles.get_articles(instance, start, count);
 }
 
 const create_article = ({title, author, note})=>{

@@ -1,11 +1,22 @@
 import {get_article_detail, get_articles, create_article, update_article, delete_article} from "./article.service.js"
 import express from "express";
+import AppError from "../../errors/app_error.js"
+import ERRORS from "../../errors/error_codes/error_codes_article.js"
 const article_router = express.Router();
 
 //получение всех статей
 article_router.get("/", async(req, res, next)=>{
     try{        
-        const articles = await get_articles();
+        const start = req?.query?.start;
+        const count = req?.query?.count;
+
+        if(!start)
+            throw new AppError(ERRORS.REQUIRED_START.error_message, 500, ERRORS.REQUIRED_START.error_code);
+
+        if(!count)
+            throw new AppError(ERRORS.REQUIRED_COUNT.error_message, 500, ERRORS.REQUIRED_COUNT.error_code);
+
+        const articles = await get_articles(start, count);
         res.json(articles);
     }catch(err){
         next(err);
