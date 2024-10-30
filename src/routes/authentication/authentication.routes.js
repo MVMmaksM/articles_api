@@ -1,8 +1,8 @@
 import { access_user, create_confirm_code, create_user_token } from "./authentication.service.js";
 import { confirmation_code } from "../registration/registration.service.js";
-import ERRORS from "../../errors/error_codes.js";
+import ERRORS from "../../errors/error_codes/error_codes_auth.js";
 import express from "express";
-import AppError from "../../errors/app_error.js";
+import AppError from "../../errors/error_codes/error_codes_auth.js";
 
 const auth_router = express.Router();
 

@@ -1,5 +1,5 @@
 import AppError from "../errors/app_error.js";
-import ERRORS from "../errors/error_codes.js";
+import ERRORS from "../errors/error_codes/error_codes_authorize.js";
 import UserTokens from "../db/models/user_tokens.js";
 
 const authorize = async (req, res, next)=>{  

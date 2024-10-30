@@ -1,6 +1,6 @@
 import md5 from "md5";
 import AppError from "../../errors/app_error.js";
-import ERRORS from "../../errors/error_codes.js";
+import ERRORS from "../../errors/error_codes/error_codes_auth.js";
 import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
 import UserTokens from "../../db/models/user_tokens.js";

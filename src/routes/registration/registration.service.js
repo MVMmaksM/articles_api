@@ -1,7 +1,7 @@
 import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
 import AppError from "../../errors/app_error.js";
-import ERRORS from "../../errors/error_codes.js";
+import ERRORS from "../../errors/error_codes/error_codes_reg.js";
 
 const registration_phone = async(cred_phone)=>{   
     const instance = global.instance; 

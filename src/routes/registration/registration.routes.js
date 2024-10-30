@@ -1,7 +1,7 @@
 import { registration_phone, confirmation_code } from "./registration.service.js";
 import express from "express";
 import AppError from "../../errors/app_error.js"
-import ERRORS from "../../errors/error_codes.js"
+import ERRORS from "../../errors/error_codes/error_codes_reg.js"
 const registration_router = express.Router();
 
 //регистрация по номеру телефона
@@ -17,7 +17,10 @@ registration_router.post("/phone", async (req, res, next)=>{
         if(!code_id)
             throw new AppError("Ошибка при регистрации", 500, ERRORS.ERR_OTHER_REG.error_code);
 
-        res.json({code_id: code_id});
+        res.json({
+            result: "Учетная запись успешно создана, выполните подвтерждение",
+            code_id: code_id,
+        });
     }catch(err){
         next(err);
     }    
