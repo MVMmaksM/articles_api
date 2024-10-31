@@ -1,8 +1,8 @@
 {
   "type": "module",
-  "name": "nodejs_learn",
+  "name": "articles_api",
   "version": "1.0.0",
-  "description": "помойка",
+  "description": "articles_api",
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MVMmaksM/nodejs_learn.git"
+    "url": "git+https://github.com/MVMmaksM/articles_api.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MVMmaksM/nodejs_learn/issues"
+    "url": "https://github.com/MVMmaksM/articles_api/issues"
   },
-  "homepage": "https://github.com/MVMmaksM/nodejs_learn#readme",
+  "homepage": "https://github.com/MVMmaksM/articles_api#readme",
   "devDependencies": {
     "express": "^4.21.1",
     "knex": "^3.1.0",

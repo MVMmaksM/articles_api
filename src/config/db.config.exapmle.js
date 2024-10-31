@@ -10,4 +10,4 @@ const db_config = {
     }
 }
 
-export {db_config}
+export default db_config;
