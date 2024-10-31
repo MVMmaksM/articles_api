@@ -43,7 +43,7 @@ const get_articles = async(start, count)=>{
     return await Articles.get_articles(instance, start, count);
 }
 
-const create_article = ({title, author, note})=>{
+const create_article = ({title, created_by, note})=>{
     seq_article = seq_article + 1;
     
     const new_article = {

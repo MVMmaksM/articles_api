@@ -32,23 +32,15 @@ article_router.get("/:article_id", (req, res)=> {
 });
 
 //создание статьи
-article_router.post("/", (req, res) =>{
-    const {title, author, note} = req.body;
-
-    if(title === undefined || title === "")
-        throw Error("title is not valid");
-
-    if(author === undefined || author === "")
-        throw Error("author is not valid");
-
-    if(note === undefined || note === "")
-        throw Error("note is not valid");
-
-    const article = create_article({title, author, note});
-    if(!article)
-        throw Error("error for create article");
-
-    res.json(article);
+article_router.post("/", async(req, res) =>{
+    try{
+        const {title, author, note} = req.body;
+        const article = await create_article({title, author, note});  
+    
+        res.json(article);
+    }catch(err){
+        next(err);
+    }   
 });
 
 article_router.put("/:article_id", (req, res) => {

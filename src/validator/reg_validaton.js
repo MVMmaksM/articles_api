@@ -1,13 +1,13 @@
 import { Joi } from "express-validation";
 
-const cred_phone_validate = function(value, helpers){    
-    let phone_number = Buffer.from(value, "base64").toString();
-    phone_number = parseInt(phone_number);
+const cred_phone_validate = function(value, helpers){  
+    const exp_phone = /^[0-9]+$/;  
+    let phone = Buffer.from(value, "base64").toString();   
 
-    if(!phone_number)
+    if(!exp_phone.test(phone))
         throw new Error('invalid phone number');
 
-    if(phone_number.toString().length != 10)
+    if(phone.length != 10)
         throw new Error('invalid phone number length');
 
 }
