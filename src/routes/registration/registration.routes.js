@@ -2,13 +2,15 @@ import { registration_phone, confirmation_code } from "./registration.service.js
 import express from "express";
 import AppError from "../../errors/app_error.js"
 import ERRORS from "../../errors/error_codes/error_codes_reg.js"
+import {phone_validation} from "../../validator/reg_validaton.js"
+import { validate } from "express-validation";
+
 const registration_router = express.Router();
 
 //регистрация по номеру телефона
-registration_router.post("/phone", async (req, res, next)=>{
+registration_router.post("/phone", validate(phone_validation, {keyByField: true}), async (req, res, next)=>{
     try {
-        const cred_phone = req.headers["registration"];   
-
+        const cred_phone = req?.body?.cred;  
         if(!cred_phone)
             throw new AppError(ERRORS.NOT_PHONE.error_message, 500, ERRORS.NOT_PHONE.error_code);
          

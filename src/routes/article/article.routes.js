@@ -2,21 +2,14 @@ import {get_article_detail, get_articles, create_article, update_article, delete
 import express from "express";
 import AppError from "../../errors/app_error.js"
 import ERRORS from "../../errors/error_codes/error_codes_article.js"
+import { start_count_validation } from "../../validator/article_validation.js";
+import { validate } from "express-validation";
 const article_router = express.Router();
 
 //получение всех статей
-article_router.get("/", async(req, res, next)=>{
-    try{        
-        const start = req?.query?.start;
-        const count = req?.query?.count;
-
-        if(!start)
-            throw new AppError(ERRORS.REQUIRED_START.error_message, 500, ERRORS.REQUIRED_START.error_code);
-
-        if(!count)
-            throw new AppError(ERRORS.REQUIRED_COUNT.error_message, 500, ERRORS.REQUIRED_COUNT.error_code);
-
-        const articles = await get_articles(start, count);
+article_router.get("/", validate(start_count_validation, {keyByField: true}), async(req, res, next)=>{
+    try{           
+        const articles = await get_articles(req?.query?.start, req?.query?.count);
         res.json(articles);
     }catch(err){
         next(err);

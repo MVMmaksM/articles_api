@@ -21,7 +21,7 @@ app.use(res_end_time);
 app.use("/api/v1/registration", registration_router);
 app.use("/api/v1/authentication", auth_router);
 
-app.use("/", authorize);
+//app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
 
 //обработчик ошибок
