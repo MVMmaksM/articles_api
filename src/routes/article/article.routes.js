@@ -32,7 +32,9 @@ article_router.get("/:article_id", async(req, res)=> {
 article_router.post("/", async(req, res, next) =>{
     try{
         const {title, note} = req.body;
-        const article = await create_article({title, note});  
+        const created_by = req?.user?.user_id;
+         
+        const article = await create_article({title, note, created_by});  
     
         res.json(article);
     }catch(err){

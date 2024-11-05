@@ -1,9 +1,9 @@
 import ValidationQueryParamsError from "../errors/validation_query_params_error.js";
 
 export default class Validator{
-    static pagination_validate(err, req, res, next){
-        const start = Number(req?.query?.offset);
-        const count = Number(req?.query?.limit);
+    static pagination_validate(req, res, next){
+        const offset = Number(req?.query?.offset);
+        const limit = Number(req?.query?.limit);      
 
         if(!Number.isInteger(offset) || Number.isNaN(offset))
             throw new ValidationQueryParamsError('Обязательный query-параметр offset принимает только целые числа');
@@ -11,7 +11,7 @@ export default class Validator{
         if(offset < 0)
             throw new ValidationQueryParamsError('Обязательный query-параметр offset принимает минимальное значение равное 1');
 
-        if(!Number.isInteger(coulimitnt) || Number.isNaN(limit))
+        if(!Number.isInteger(limit) || Number.isNaN(limit))
             throw new ValidationQueryParamsError('Обязательный query-параметр limit принимает только целые числа');
 
         if(limit > 200 || limit < 0)

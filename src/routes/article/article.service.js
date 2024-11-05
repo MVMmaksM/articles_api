@@ -1,36 +1,6 @@
-import Articles from "../../db/models/articles.js"
-import AppError from "../../errors/app_error.js";
-import ERRORS from "../../errors/error_codes/error_codes_article.js";
-
-let articles = [
-    {
-        article_id: 1,
-        title: "Тестовая статья один",
-        author: "Тестовый автор один",
-        create_on_tz: new Date().toISOString(),
-        note: "Teststststst",
-        update_on_tz: null,
-        is_delete: false
-    },
-    {
-        article_id: 2,
-        title: "Тестовая статья два",
-        author: "Тестовый автор два",
-        create_on_tz: new Date().toISOString(),
-        note: "Teststs",
-        update_on_tz: null,
-        is_delete: false
-    },
-    {
-        article_id: 3,
-        title: "Тестовая статья три",
-        author: "Тестовый автор три",
-        create_on_tz: new Date().toISOString(),
-        note: "testststsst",
-        update_on_tz: null,
-        is_delete: false
-    },
-]
+import Articles from "../../db/models/articles.js";
+import begin_transaction from "../../db/begin_transaction.js"
+import commit_transaction from "../../db/commit_transaction.js"
 
 let seq_article = 3;
 
@@ -46,9 +16,14 @@ const get_articles = async(limit, offset)=>{
     return await Articles.get_articles(instance, limit, offset);
 }
 
-const create_article = async({title, note})=>{    
-    const instance = global.instance;  
-    return await Articles.create_article(instance, {title, note});
+const create_article = async({title, note, created_by})=>{    
+    const instance = global.instance; 
+
+    await begin_transaction(instance);
+    const result = await Articles.create_article(instance, {title, note, created_by});
+    await commit_transaction(instance);
+
+    return result;
 }
 
 const update_article = ({article_id, title, note}) => {

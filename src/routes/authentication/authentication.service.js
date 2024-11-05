@@ -25,13 +25,14 @@ const access_user = async (cred_phone)=>{
 
 const create_user_token = async(user_id) =>{
     const token_hash = md5(user_id.toString() + Date.now().toString());
-    let buff = new Buffer(token_hash);
-    const token = buff.toString('base64');
-    
-    const user_token_id = await UserTokens.add_token(instance, user_id, token);
+        
+    const user_token_id = await UserTokens.add_token(instance, user_id, token_hash);
 
     if(!user_token_id)
         throw new AppError("Ошибка при создании токена", 500, ERRORS.ERR_OTHER_AUTH.error_code);
+
+    let buff = new Buffer(token_hash);
+    const token = buff.toString('base64');
     
     return token;
 }

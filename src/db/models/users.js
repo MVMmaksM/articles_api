@@ -7,7 +7,7 @@ class Users {
 
     static async create_user(instance, user){   
         const user_id = await this.get_sequence(instance);
-        const result = await instance.raw('INSERT INTO public.users (USER_ID, LOGIN, PASSWORD, PHONE) VALUES(?,?,?,?)', [user_id, user?.login, user?.password, user?.phone]); 
+        const result = await instance.raw('INSERT INTO public.users (USER_ID, LOGIN, PASSWORD, PHONE) VALUES(?,?,?,?)', [user_id, user?.login ?? `user_${user_id}`, user?.password, user?.phone]); 
         
         if(result?.rowCount === 0)
             throw Error("Ошибка при добавлении записи в таблицу users");

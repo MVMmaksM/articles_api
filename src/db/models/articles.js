@@ -12,7 +12,7 @@ class Articles{
     static async get_detail_article(instance, article_id){
         return (await instance.raw(`SELECT a.article_id, a.created_by, a.title, a.created_on_tz, a.updated_on_tz, an.note
                                     FROM ${this.articles} a
-                                    INNER JOIN ${this.article_notes} an ON a.erticle_id = an.article_id
+                                    INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     WHERE a.article_id = ?`, [article_id]))?.rows;
     }
 
@@ -20,19 +20,16 @@ class Articles{
         return (await instance.raw(`SELECT nextval('articles_article_id_seq')`))?.rows[0]?.nextval;
     }
 
-    static async create_article(instance, {title, note}){
+    static async create_article(instance, {title, note, created_by}){
         const article_id = await this.get_seq(instance);
-        await instance.raw(`BEGIN;`);
-        const result = await instance.raw(`
-                                           INSERT INTO ${this.articles} (article_id, title, created_by)
-                                           VALUES(?,?,?);`, [article_id, title, 26]);
 
-        const result1 = await instance.raw(`
-                                           INSERT INTO ${this.article_notes} (article_id, note)
-                                           VALUES(?, ?);`, [1, title]);
+        await instance.raw(`INSERT INTO ${this.articles} (article_id, title, created_by)
+                                           VALUES(?,?,?);`, [article_id, title, created_by]);
 
-        await instance.raw(`COMMIT;`);
-        console.log(result.rowCount);
+        await instance.raw(`INSERT INTO ${this.article_notes} (article_id, note)
+                            VALUES(?, ?);`, [article_id, note]);
+                                           
+        return await this.get_detail_article(instance, article_id);
     }
 }
 
