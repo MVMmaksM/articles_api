@@ -5,7 +5,7 @@ async function res_start_time(req, res, next) {
 
 async function res_end_time(req, res, next) {
     res.on("finish", ()=>{     
-        console.log(`[${req.method} ${req.originalUrl} ${JSON.stringify(req.body)} ${res.statusCode} ${((new Date).getTime() - req.startTime)/1000}s]`);      
+        console.log(`\n[${req.method} ${req.originalUrl} ${JSON.stringify(req.body)} ${res.statusCode} ${((new Date).getTime() - req.startTime)/1000}s]\n`);      
     });
     next();
 }

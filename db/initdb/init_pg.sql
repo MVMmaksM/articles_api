@@ -1,7 +1,8 @@
 -- public.users определение
 
 -- Drop table
-DROP table if EXISTS public.users;
+
+-- DROP TABLE public.users;
 
 CREATE TABLE public.users (
 	user_id serial4 NOT NULL,
@@ -9,6 +10,8 @@ CREATE TABLE public.users (
 	"password" varchar(255) NULL,
 	phone int8 NOT NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NULL,
+	first_name varchar(255) NULL,
+	last_name varchar(255) NULL,
 	CONSTRAINT uq_phone UNIQUE (phone),
 	CONSTRAINT users_pkey PRIMARY KEY (user_id)
 );

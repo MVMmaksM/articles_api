@@ -1,5 +1,7 @@
 class Users {
 
+    static users = "public.users";
+
     static async find_user_phone(instance, phone){
         const users = await instance.raw('SELECT user_id FROM public.users WHERE phone = ?', [phone]);
         return users?.rows[0]?.user_id;
@@ -7,7 +9,8 @@ class Users {
 
     static async create_user(instance, user){   
         const user_id = await this.get_sequence(instance);
-        const result = await instance.raw('INSERT INTO public.users (USER_ID, LOGIN, PASSWORD, PHONE) VALUES(?,?,?,?)', [user_id, user?.login ?? `user_${user_id}`, user?.password, user?.phone]); 
+        const result = await instance.raw(`INSERT INTO ${this.users} (USER_ID, LOGIN, PASSWORD, PHONE, FIRST_NAME, LAST_NAME) 
+                                           VALUES(?,?,?,?)`, [user_id, user?.login, user?.password, user?.phone, user?.firstname ?? `user_${user_id}`, user?.lastname]); 
         
         if(result?.rowCount === 0)
             throw Error("Ошибка при добавлении записи в таблицу users");

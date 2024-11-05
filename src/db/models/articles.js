@@ -10,9 +10,16 @@ class Articles{
     }
 
     static async get_detail_article(instance, article_id){
-        return (await instance.raw(`SELECT a.article_id, a.created_by, a.title, a.created_on_tz, a.updated_on_tz, an.note
+        return (await instance.raw(`SELECT a.article_id, 
+                                           a.created_by, 
+                                           u.first_name AS created_by_first_name, 
+                                           u.last_name AS created_by_last_name, 
+                                           a.title, 
+                                           a.created_on_tz, 
+                                           a.updated_on_tz, an.note
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
+                                    INNER JOIN users u ON u.user_id = a.created_by
                                     WHERE a.article_id = ?`, [article_id]))?.rows;
     }
 
