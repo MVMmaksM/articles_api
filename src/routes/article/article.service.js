@@ -1,6 +1,8 @@
 import Articles from "../../db/models/articles.js";
 import begin_transaction from "../../db/begin_transaction.js"
 import commit_transaction from "../../db/commit_transaction.js"
+import ArticleError from "../../errors/articles_error.js";
+import ERRORS from "../../errors/error_codes/error_codes_article.js";
 
 let seq_article = 3;
 
@@ -16,6 +18,7 @@ const get_articles = async(limit, offset)=>{
     return await Articles.get_articles(instance, limit, offset);
 }
 
+//создание статьи
 const create_article = async({title, note, created_by})=>{    
     const instance = global.instance; 
 
@@ -36,10 +39,15 @@ const update_article = ({article_id, title, note}) => {
     return articles[index_article_updated];
 }
 
-const delete_article = (article_id)=>{
-    const index_article_deleted = articles.indexOf(articles.find(a => a.article_id === article_id));
+//удаление статьи
+const delete_article = async(article_id, user_id)=>{
+    const article = await Articles.get_detail_article(instance, article_id); 
+    
+    if(!article)
+        throw new ArticleError(ERRORS.NOT_FOUND);
 
-    articles[index_article_deleted].is_delete = true;
+    if(article.created_by != user_id)
+        throw new ArticleError(ERRORS.FORBIDDEN_DELETE);
 
     return true;
 }

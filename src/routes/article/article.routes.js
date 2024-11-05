@@ -42,6 +42,7 @@ article_router.post("/", async(req, res, next) =>{
     }   
 });
 
+//изменение статьи
 article_router.put("/:article_id", (req, res) => {
     const article_id = parseInt(req.params.article_id);
     const {title, note} = req.body;
@@ -58,7 +59,8 @@ article_router.put("/:article_id", (req, res) => {
     res.json(articleUpdate);
 });
 
-article_router.delete("/:article_id", (req, res) => {
+//удаление статьи
+article_router.delete("/:article_id", async(req, res) => {
     const article_id = parseInt(req.params.article_id);
 
     if(!article_id || article_id < 0)
@@ -69,7 +71,7 @@ article_router.delete("/:article_id", (req, res) => {
     if(!article)
         throw Error(`article with article_id: ${article_id} not found`);
 
-    const result = delete_article(article_id);
+    const result = async delete_article(article_id);
 
     res.json({result: true});
 });

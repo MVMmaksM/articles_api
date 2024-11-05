@@ -38,6 +38,14 @@ class Articles{
                                            
         return await this.get_detail_article(instance, article_id);
     }
+
+    //статью не удаляем, а только дизаейблим, удлаять по крону раз в день, например
+    static async delete_article(instance, article_id){
+        await instance.raw(`UPDATE ${this.articles}
+                            SET is_deleted = 1 AND delete_on_tz = timestamp`);
+
+        
+    }
 }
 
 export default Articles;
