@@ -5,7 +5,7 @@ class Articles{
         return (await instance.raw(`SELECT article_id, created_by, name, created_on_tz, updated_on_tz
                                   FROM ${this.table_name}
                                   LIMIT ?
-                                  OFFSET ?`, [count ?? 200, start ?? 1]))?.rows;
+                                  OFFSET ?`, [count ?? 200, start ?? 0]))?.rows;
     }
 }
 

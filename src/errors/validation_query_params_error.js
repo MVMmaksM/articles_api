@@ -1,12 +1,13 @@
-import ValidationError from "./validation_error";
+import ValidationError from "./validation_error.js";
+const error = {
+    name: "Error validation",
+    status_code: 400,
+    error: "Bad Request"
+}
 
 export default class ValidationQueryParamsError extends ValidationError{
-    error = {
-        name: "Error validation",
-        status_code: 400,
-        error: "Bad Request"
-    }
+  
     constructor(details){
-        super({...this.error, ...details});
+        super({name: error.name, status_code: error.status_code, error: error.error, details: details});       
     }
 }
