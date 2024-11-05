@@ -6,21 +6,21 @@ const article_router = express.Router();
 //получение всех статей
 article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
     try{           
-        const articles = await get_articles(req?.query?.start, req?.query?.count);
+        const articles = await get_articles(req?.query?.limit, req?.query?.offset);
         res.json(articles);
     }catch(err){
         next(err);
     }
 });
 
-//полчуние детализации статьи
-article_router.get("/:article_id", (req, res)=> {
+//получение детализации статьи
+article_router.get("/:article_id", async(req, res)=> {
     const article_id = parseInt(req.params.article_id);
 
     if(!article_id || article_id < 0)
         throw Error("article_id parametr is not valid");
     
-    const article = get_article_detail(article_id);
+    const article = await get_article_detail(article_id);
 
     if(!article)
         throw Error(`article with article_id: ${article_id} not found`);
@@ -29,10 +29,10 @@ article_router.get("/:article_id", (req, res)=> {
 });
 
 //создание статьи
-article_router.post("/", async(req, res) =>{
+article_router.post("/", async(req, res, next) =>{
     try{
-        const {title, author, note} = req.body;
-        const article = await create_article({title, author, note});  
+        const {title, note} = req.body;
+        const article = await create_article({title, note});  
     
         res.json(article);
     }catch(err){

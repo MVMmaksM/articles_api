@@ -34,28 +34,21 @@ let articles = [
 
 let seq_article = 3;
 
-const get_article_detail = (article_id)=>{
-    return articles.find(a => a.article_id === article_id);
-}
-
-const get_articles = async(start, count)=>{
+//детализация статьи
+const get_article_detail = async (article_id)=>{
     const instance = global.instance;
-    return await Articles.get_articles(instance, start, count);
+    return await Articles.get_detail_article(instance, article_id);
 }
 
-const create_article = ({title, created_by, note})=>{
-    seq_article = seq_article + 1;
-    
-    const new_article = {
-        article_id: seq_article,
-        title: title,
-        author: author,
-        note: note,
-        date_create: new Date().toISOString()
-    }
+//список статей
+const get_articles = async(limit, offset)=>{
+    const instance = global.instance;
+    return await Articles.get_articles(instance, limit, offset);
+}
 
-    articles.push(new_article);
-    return articles.find(a => a.article_id === seq_article);
+const create_article = async({title, note})=>{    
+    const instance = global.instance;  
+    return await Articles.create_article(instance, {title, note});
 }
 
 const update_article = ({article_id, title, note}) => {

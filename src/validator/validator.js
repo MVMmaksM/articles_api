@@ -2,20 +2,20 @@ import ValidationQueryParamsError from "../errors/validation_query_params_error.
 
 export default class Validator{
     static pagination_validate(err, req, res, next){
-        const start = Number(req?.query?.start);
-        const count = Number(req?.query?.count);
+        const start = Number(req?.query?.offset);
+        const count = Number(req?.query?.limit);
 
-        if(!Number.isInteger(start) || Number.isNaN(start))
-            throw new ValidationQueryParamsError('Обязательный query-параметр start принимает только целые числа');
+        if(!Number.isInteger(offset) || Number.isNaN(offset))
+            throw new ValidationQueryParamsError('Обязательный query-параметр offset принимает только целые числа');
 
-        if(start < 0)
-            throw new ValidationQueryParamsError('Обязательный query-параметр start принимает минимальное значение равное 1');
+        if(offset < 0)
+            throw new ValidationQueryParamsError('Обязательный query-параметр offset принимает минимальное значение равное 1');
 
-        if(!Number.isInteger(count) || Number.isNaN(count))
-            throw new ValidationQueryParamsError('Обязательный query-параметр count принимает только целые числа');
+        if(!Number.isInteger(coulimitnt) || Number.isNaN(limit))
+            throw new ValidationQueryParamsError('Обязательный query-параметр limit принимает только целые числа');
 
-        if(count > 200 || count < 0)
-            throw new ValidationQueryParamsError('Обязательный query-параметр count принимает минимальное значение равное 1 и максимальное значение равное 200');
+        if(limit > 200 || limit < 0)
+            throw new ValidationQueryParamsError('Обязательный query-параметр limit принимает минимальное значение равное 1 и максимальное значение равное 200');
 
         next();
     }

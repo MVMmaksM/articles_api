@@ -1,11 +1,38 @@
 class Articles{
-    static table_name = 'public.articles';
+    static articles = 'public.articles';
+    static article_notes = 'public.article_notes';
 
-    static async get_articles(instance, start, count){
-        return (await instance.raw(`SELECT article_id, created_by, name, created_on_tz, updated_on_tz
-                                  FROM ${this.table_name}
+    static async get_articles(instance, limit, offset){
+        return (await instance.raw(`SELECT article_id, created_by, title, created_on_tz, updated_on_tz
+                                  FROM ${this.articles}
                                   LIMIT ?
-                                  OFFSET ?`, [count ?? 200, start ?? 0]))?.rows;
+                                  OFFSET ?`, [limit ?? 200, offset ?? 0]))?.rows;
+    }
+
+    static async get_detail_article(instance, article_id){
+        return (await instance.raw(`SELECT a.article_id, a.created_by, a.title, a.created_on_tz, a.updated_on_tz, an.note
+                                    FROM ${this.articles} a
+                                    INNER JOIN ${this.article_notes} an ON a.erticle_id = an.article_id
+                                    WHERE a.article_id = ?`, [article_id]))?.rows;
+    }
+
+    static async get_seq(instance){
+        return (await instance.raw(`SELECT nextval('articles_article_id_seq')`))?.rows[0]?.nextval;
+    }
+
+    static async create_article(instance, {title, note}){
+        const article_id = await this.get_seq(instance);
+        await instance.raw(`BEGIN;`);
+        const result = await instance.raw(`
+                                           INSERT INTO ${this.articles} (article_id, title, created_by)
+                                           VALUES(?,?,?);`, [article_id, title, 26]);
+
+        const result1 = await instance.raw(`
+                                           INSERT INTO ${this.article_notes} (article_id, note)
+                                           VALUES(?, ?);`, [1, title]);
+
+        await instance.raw(`COMMIT;`);
+        console.log(result.rowCount);
     }
 }
 

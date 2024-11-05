@@ -61,7 +61,7 @@ DROP table if exists  public.articles;
 CREATE TABLE public.articles (
 	article_id serial4 NOT NULL,
 	created_by int4 NOT NULL,
-	"name" varchar(256) NULL,
+	title varchar(256) NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
 	updated_on_tz timestamp NULL,
 	CONSTRAINT articles_pkey PRIMARY KEY (article_id)
