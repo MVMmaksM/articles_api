@@ -59,7 +59,7 @@ article_router.put("/:article_id", (req, res) => {
     res.json(articleUpdate);
 });
 
-//удаление статьи
+/*//удаление статьи
 article_router.delete("/:article_id", async(req, res) => {
     const article_id = parseInt(req.params.article_id);
 
@@ -74,6 +74,6 @@ article_router.delete("/:article_id", async(req, res) => {
     const result = async delete_article(article_id);
 
     res.json({result: true});
-});
+});*/
 
 export default article_router;

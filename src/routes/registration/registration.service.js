@@ -21,7 +21,9 @@ const registration_phone = async(cred_phone)=>{
         {
             phone: phone_number,
             login: null,
-            password: null
+            password: null,
+            firstname: null,
+            lastname: null
         });  
 
     const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);   

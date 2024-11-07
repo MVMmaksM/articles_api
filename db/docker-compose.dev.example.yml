@@ -9,3 +9,5 @@ services:
     ports:
       - ":"
     restart: unless-stopped
+     volumes: 
+      - ../data/postgres:/var/lib/postgresql/data

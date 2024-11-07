@@ -5,7 +5,7 @@ import UserTokens from "../db/models/user_tokens.js";
 const authorize = async (req, res, next)=>{  
     try{
         const instance = global.instance;
-        const token = req.headers["authorization"] ? Buffer.from(req.headers["authorization"], "base64").toString() : undefined; 
+        const token = req.headers["authorization"]; 
 
         if(!token)
             throw new AppError(ERRORS.NOT_AUTHORIZE.error_message, 401, ERRORS.NOT_AUTHORIZE.error_code);

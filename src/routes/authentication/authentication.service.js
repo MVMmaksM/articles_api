@@ -1,4 +1,4 @@
-import md5 from "md5";
+import crypto from "crypto";
 import AppError from "../../errors/app_error.js";
 import ERRORS from "../../errors/error_codes/error_codes_auth.js";
 import Users from "../../db/models/users.js";
@@ -24,15 +24,8 @@ const access_user = async (cred_phone)=>{
 }
 
 const create_user_token = async(user_id) =>{
-    const token_hash = md5(user_id.toString() + Date.now().toString());
-        
-    const user_token_id = await UserTokens.add_token(instance, user_id, token_hash);
-
-    if(!user_token_id)
-        throw new AppError("Ошибка при создании токена", 500, ERRORS.ERR_OTHER_AUTH.error_code);
-
-    let buff = new Buffer(token_hash);
-    const token = buff.toString('base64');
+    const token = generate_token();        
+    const user_token_id = await UserTokens.add_token(instance, user_id, token);
     
     return token;
 }
@@ -42,6 +35,10 @@ const create_confirm_code = async (user_id)=>{
     const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);
     const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code);
     return code_id;
+}
+
+const generate_token = ()=>{
+    return crypto.randomBytes(48).toString("base64");   
 }
 
 export {access_user, create_user_token, create_confirm_code}
