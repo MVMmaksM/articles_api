@@ -1,4 +1,6 @@
 import ValidationQueryParamsError from "../errors/validation_query_params_error.js";
+import VAlidationHeadersError from "../errors/validation_headers_error.js"
+import is_base64 from "is-base64";
 
 export default class Validator{
     static pagination_validate(req, res, next){
@@ -18,5 +20,11 @@ export default class Validator{
             throw new ValidationQueryParamsError('Обязательный query-параметр limit принимает минимальное значение равное 1 и максимальное значение равное 200');
 
         next();
+    }
+
+    static cred_phone_validate(req, res, next){
+        const phone = req?.headers["cred"];
+
+        
     }
 }

@@ -36,7 +36,7 @@ article_router.post("/", async(req, res, next) =>{
          
         const article = await create_article({title, note, created_by});  
     
-        res.json(article);
+        res.status(201).json(article);
     }catch(err){
         next(err);
     }   
