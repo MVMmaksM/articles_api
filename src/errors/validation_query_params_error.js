@@ -1,6 +1,6 @@
 import ValidationError from "./validation_error.js";
 const error = {
-    name: "Error validation qury-params",
+    name: "Error validation query-params",
     status_code: 400,
     error: "Bad Request"
 }

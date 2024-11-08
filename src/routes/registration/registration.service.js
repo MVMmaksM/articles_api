@@ -2,20 +2,17 @@ import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
 import AppError from "../../errors/app_error.js";
 import ERRORS from "../../errors/error_codes/error_codes_reg.js";
+import begin_transaction from "../../db/begin_transaction.js"
+import commit_transaction from "../../db/commit_transaction.js";
+import RegistrationError from "../../errors/registration_error.js"
 
 const registration_phone = async(cred_phone)=>{   
     const instance = global.instance; 
+    
+    await begin_transaction(instance);
 
     let phone_number = Buffer.from(cred_phone, "base64").toString();
-    phone_number = parseInt(phone_number);
-    
-    if(!phone_number)
-        throw new AppError(ERRORS.NOT_VALID_PHONE.error_message, 500, ERRORS.NOT_VALID_PHONE.error_code);
-    
-    const user = await Users.find_user_phone(instance, phone_number);  
-
-    if(user)
-        throw new AppError(ERRORS.EXIST_PHONE.error_message, 500, ERRORS.EXIST_PHONE.error_code);
+    phone_number = Number(phone_number);   
 
     const user_id = await Users.create_user(instance, 
         {
@@ -26,32 +23,30 @@ const registration_phone = async(cred_phone)=>{
             lastname: null
         });  
 
-    const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);   
-
-    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code);   
+    const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);  
+    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code); 
+    
+    await commit_transaction(instance);
 
     return code_id;
 }
 
-const confirmation_code = async (confirm_code_id) =>{
-    if(!confirm_code_id)
-        throw new AppError(ERRORS.NOT_CONFIRM_CODE.error_message, 500, ERRORS.NOT_CONFIRM_CODE.error_code);
+const confirmation_code = async (confirm) =>{  
+    const instance = global.instance;
 
-    let confirm_cred = Buffer.from(confirm_code_id, "base64").toString(); 
-
-    if(!confirm_cred)
-        throw new AppError(ERRORS.NOT_CONFIRM_CODE.error_message, 500, ERRORS.NOT_CONFIRM_CODE.error_code);
-
-    confirm_cred = confirm_cred.split(":");
+    let confirm_cred = Buffer.from(confirm, "base64")?.toString(); 
+    confirm_cred = confirm_cred?.split(":");   
     
-    if(!confirm_cred[0] || !confirm_cred[1])
-        throw new AppError(ERRORS.NOT_VALID_CONF_CODE.error_message, 500, ERRORS.NOT_VALID_CONF_CODE.error_code);
-
-    const code_id = await ConfirmationCodes.find_code_code_id(instance, confirm_cred[0], confirm_cred[1]);   
+    await begin_transaction(instance);
+    //0 индекс - code_id, 1 - code
+    const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1]);  
     
-    if(!code_id)
-        throw new AppError(ERRORS.NOT_VALID_CONF_CODE.error_message, 500, ERRORS.NOT_VALID_CONF_CODE.error_code);
+    if(!code)
+        throw new RegistrationError("Код подтверждения или code_id не найден");
 
+       
+    
+    await commit_transaction(instance);
     return code_id;
 }
 
