@@ -1,4 +1,4 @@
-import { registration_phone, confirmation_code } from "./registration.service.js";
+import { registration_phone, confirmation_code, get_again_code } from "./registration.service.js";
 import express from "express";
 import AppError from "../../errors/app_error.js"
 import ERRORS from "../../errors/error_codes/error_codes_reg.js"
@@ -31,6 +31,18 @@ registration_router.post("/phone/confirm", Validator.reg_confirm_code_validate, 
     
         res.json({result: "Учетная запись успешно подтверждена, выполните вход"});
 
+    }catch(err){
+        next(err);
+    }
+});
+
+//потворный запрос кода
+registration_router.get("/phone/again_code", Validator.reg_cred_phone_validate, async(req, res, next)=>{
+    try{
+        const code_id = await get_again_code(req?.headers["reg"]);
+        res.json({
+            code_id: code_id
+        });
     }catch(err){
         next(err);
     }

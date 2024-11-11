@@ -1,5 +1,5 @@
 async function error_handler(err, req, res, next) {
-    console.log(`ERROR:${err.stack} \n`);
+    console.log(`\nERROR:${err.stack} \n`);
 
     return res.status(err.status_code || 500).json(
         {

@@ -3,8 +3,18 @@ class Users {
     static users = "public.users";
 
     static async find_user_phone(instance, phone){
-        const users = await instance.raw('SELECT user_id FROM public.users WHERE phone = ?', [phone]);
-        return users?.rows[0]?.user_id;
+        const users = await instance.raw(`SELECT 
+                                          user_id,
+                                          login,
+                                          password,
+                                          phone,
+                                          to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS created_on_tz,
+                                          first_name,
+                                          last_name,
+                                          confirm 
+                                          FROM public.users 
+                                          WHERE phone = ?`, [phone]);
+        return users?.rows[0];
     }
 
     static async create_user(instance, user){   

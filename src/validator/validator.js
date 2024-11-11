@@ -47,12 +47,6 @@ export default class Validator{
             if(phone.toString().length != 10)
                 throw new VAlidationHeadersError("Длина номера телефона должна быть 10 цифр");
 
-            const instance = global.instance;        
-            const user_id = await Users.find_user_phone(instance, phone);
-
-            if(user_id)
-                throw new VAlidationHeadersError("Пользователь с указанным номером телефона уже существует, аутентифицируйтесь");
-
             next();
         }catch(err){
             next(err);
