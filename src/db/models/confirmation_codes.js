@@ -15,8 +15,8 @@ class ConfirmationCodes {
         const result = await instance.raw(`SELECT code_id, 
                                                   user_id, 
                                                   code, 
-                                                  to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS created_on_tz, 
-                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS used_on_tz
+                                                  to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
+                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz
                                            FROM ${this.table}
                                            WHERE code_id = ? AND code = ?`, 
                                            [code_id ?? null, code ?? null]);
@@ -25,18 +25,18 @@ class ConfirmationCodes {
 
     static async used_confirm_code(instance, code_id){
         const result = await instance.raw(`UPDATE ${this.table} 
-                                           SET used_on_tz = timestamp
+                                           SET used_on_tz =  now() at time zone 'utc'
                                            WHERE code_id = ?`, [code_id]);
 
-        return result;
+        return result?.rowCount;
     }
 
     static async get_latest_user_code(instance, user_id){
         const result = await instance.raw(`SELECT code_id,
                                                   user_id,
                                                   code,
-                                                  to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS created_on_tz, 
-                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS used_on_tz
+                                                  to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
+                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz
                                            FROM ${this.table}
                                            WHERE user_id = ?
                                            ORDER BY created_on_tz DESC`,

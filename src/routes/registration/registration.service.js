@@ -5,6 +5,7 @@ import ERRORS from "../../errors/error_codes/error_codes_reg.js";
 import begin_transaction from "../../db/begin_transaction.js"
 import commit_transaction from "../../db/commit_transaction.js";
 import RegistrationError from "../../errors/registration_error.js"
+import { format, getTime, getUnixTime } from "date-fns";
 
 const registration_phone = async(cred_phone)=>{   
     const instance = global.instance; 
@@ -53,24 +54,24 @@ const confirmation_code = async (confirm) =>{
     //0 индекс - code_id, 1 - code
     const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1]);  
     
+    console.log(code?.created_on_tz)
+    
     if(!code)
         throw new RegistrationError("Код подтверждения или code_id не найден");
 
     //время действия кода в минутах
-    const time_action_code = 5;
-    console.log(code?.created_on_tz)
-
+    const time_action_code = 5;  
+    
     if((Date.now() - new Date(code?.created_on_tz).getTime()) > time_action_code*60000)
         throw new RegistrationError("Время действия кода подтверждения истекло. Запросите код повторно");
 
     if(code?.used_on_tz)
         throw new RegistrationError("Данный код подтверждения уже использован. Запросите код повторно");
 
-
-    const result = await ConfirmationCodes.used_confirm_code(instance, code?.code_id);
-    console.log(result);
+    await ConfirmationCodes.used_confirm_code(instance, code?.code_id);
+   
     await commit_transaction(instance);
-    return code_id;
+    return code?.code_id;
 }
 
 const create_confirm_code = async(instance, user_id)=>{
@@ -84,7 +85,7 @@ const create_confirm_code = async(instance, user_id)=>{
             throw new RegistrationError("Время действия последнего кода подтверждения еще не истекло");
     }
     
-    const confirmation_code = Math.floor(Math.random() * (999999 - 111111) + 0);  
+    const confirmation_code = create_random_code();  
     const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code); 
 
     return code_id;
@@ -107,6 +108,10 @@ const get_again_code = async(cred_phone)=>{
 
     await commit_transaction(instance);
     return code_id;
+}
+
+const create_random_code = ()=>{
+    return Math.floor(100000 + Math.random() * 900000);
 }
 
 export {registration_phone, confirmation_code, get_again_code}
