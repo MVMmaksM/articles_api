@@ -54,8 +54,6 @@ const confirmation_code = async (confirm) =>{
     //0 индекс - code_id, 1 - code
     const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1]);  
     
-    console.log(code?.created_on_tz)
-    
     if(!code)
         throw new RegistrationError("Код подтверждения или code_id не найден");
 
@@ -69,6 +67,7 @@ const confirmation_code = async (confirm) =>{
         throw new RegistrationError("Данный код подтверждения уже использован. Запросите код повторно");
 
     await ConfirmationCodes.used_confirm_code(instance, code?.code_id);
+    await Users.confirm_user(instance, code?.user_id);
    
     await commit_transaction(instance);
     return code?.code_id;

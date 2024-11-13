@@ -7,7 +7,7 @@ import Validator from "../../validator/validator.js";
 const registration_router = express.Router();
 
 //регистрация по номеру телефона
-registration_router.post("/phone", Validator.reg_cred_phone_validate, async (req, res, next)=>{
+registration_router.post("/phone", Validator.cred_phone_validate, async (req, res, next)=>{
     try {
         const cred_phone = req?.headers["reg"];   
         const code_id = await registration_phone(cred_phone);  
@@ -22,12 +22,9 @@ registration_router.post("/phone", Validator.reg_cred_phone_validate, async (req
 }); 
 
 //подтверждение номера телефона при регистрации
-registration_router.post("/phone/confirm", Validator.reg_confirm_code_validate, async (req, res, next)=>{
+registration_router.post("/phone/confirm", Validator.confirm_code_validate, async (req, res, next)=>{
     try{
-        const code_id = await confirmation_code(req?.headers["confirm"]); 
-
-        if(!code_id)
-            throw new AppError(ERRORS.ERR_CONFIRM.error_message, 500, ERRORS.ERR_CONFIRM.error_code);
+        const code_id = await confirmation_code(req?.headers["confirm"]);        
     
         res.json({result: "Учетная запись успешно подтверждена, выполните вход"});
 
@@ -37,7 +34,7 @@ registration_router.post("/phone/confirm", Validator.reg_confirm_code_validate, 
 });
 
 //потворный запрос кода
-registration_router.get("/phone/again_code", Validator.reg_cred_phone_validate, async(req, res, next)=>{
+registration_router.get("/phone/again_code", Validator.cred_phone_validate, async(req, res, next)=>{
     try{
         const code_id = await get_again_code(req?.headers["reg"]);
         res.json({

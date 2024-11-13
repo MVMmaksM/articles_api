@@ -6,6 +6,7 @@ const authorize = async (req, res, next)=>{
     try{
         const instance = global.instance;
         const token = req.headers["authorization"]; 
+        console.log(req?.originalUrl)
 
         if(!token)
             throw new AppError(ERRORS.NOT_AUTHORIZE.error_message, 401, ERRORS.NOT_AUTHORIZE.error_code);

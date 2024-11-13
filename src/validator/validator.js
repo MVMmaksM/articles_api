@@ -27,10 +27,11 @@ export default class Validator{
         }      
     }
 
-    static async reg_cred_phone_validate(req, res, next){
+    static async cred_phone_validate(req, res, next){
         try{
-            const key_hedears = 'reg'
-            let phone = req?.headers[key_hedears];
+            //костыль
+            const key_hedears = req?.originalUrl.includes("/api/v1/registration/") ? "reg" : "authentication";         
+            let phone = req?.headers[key_hedears]; 
 
             if(!phone)
                 throw new VAlidationHeadersError(`Не установлен обязательный заголовок ${key_hedears} в headers`);
@@ -53,7 +54,7 @@ export default class Validator{
         }
     }
 
-    static async reg_confirm_code_validate(req, res, next){
+    static async confirm_code_validate(req, res, next){
         try{
             const key_hedears = 'confirm'
             let confirm_cred = req?.headers[key_hedears];

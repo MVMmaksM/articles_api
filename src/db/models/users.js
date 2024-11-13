@@ -3,15 +3,14 @@ class Users {
     static users = "public.users";
 
     static async find_user_phone(instance, phone){
-        const users = await instance.raw(`SELECT 
-                                          user_id,
-                                          login,
-                                          password,
-                                          phone,
-                                          to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS created_on_tz,
-                                          first_name,
-                                          last_name,
-                                          confirm 
+        const users = await instance.raw(`SELECT user_id,
+                                                 login,
+                                                 password,
+                                                 phone,
+                                                 to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MM:SS.MS') AS created_on_tz,
+                                                 first_name,
+                                                 last_name,
+                                                 confirm 
                                           FROM public.users 
                                           WHERE phone = ?`, [phone]);
         return users?.rows[0];
@@ -24,6 +23,15 @@ class Users {
                                            [user_id, user?.login, user?.password, user?.phone, user?.firstname ?? `user_${user_id}`, user?.lastname]); 
 
         return user_id;
+    }
+
+    static async confirm_user(instance, user_id){
+        const result = await instance.raw(`UPDATE ${this.users}
+                                           SET confirm = true
+                                           WHERE user_id = ?`,
+                                           [user_id]);
+
+        return result?.rowCount;
     }
 
     static async get_sequence(instance){
