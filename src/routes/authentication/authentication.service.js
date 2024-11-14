@@ -31,7 +31,7 @@ const create_user_token = async(user_id) =>{
 const create_confirm_code = async (user_id)=>{
     const instance = global.instance;
     const confirmation_code = Math.floor(100000 + Math.random() * 900000);
-    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code);
+    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code, null, true);
     return code_id;
 }
 
@@ -47,19 +47,19 @@ const confirmation_code = async (confirm) =>{
     
     await begin_transaction(instance);
     //0 индекс - code_id, 1 - code
-    const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1]);  
+    const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1], null, true);  
     
     if(!code)
-        throw new RegistrationError("Код подтверждения или code_id не найден");
+        throw new AuthenticationError("Код подтверждения или code_id не найден");
 
     //время действия кода в минутах
     const time_action_code = 5;  
     
     if((Date.now() - new Date(code?.created_on_tz).getTime()) > time_action_code*60000)
-        throw new RegistrationError("Время действия кода подтверждения истекло. Запросите код повторно");
+        throw new AuthenticationError("Время действия кода подтверждения истекло. Запросите код повторно");
 
     if(code?.used_on_tz)
-        throw new RegistrationError("Данный код подтверждения уже использован. Запросите код повторно");
+        throw new AuthenticationError("Данный код подтверждения уже использован. Запросите код повторно");
 
     await ConfirmationCodes.used_confirm_code(instance, code?.code_id);
    

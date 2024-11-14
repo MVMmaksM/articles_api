@@ -11,14 +11,20 @@ class ConfirmationCodes {
         return code_id;
     } 
 
-    static async find_code(instance, code_id, code){       
+    static async find_code(instance, code_id, code, is_reg, is_auth){   
+        const where = is_reg ?  
+                      "code_id = ? AND code = ? AND is_reg = true AND is_auth IS NULL" :
+                      "code_id = ? AND code = ? AND is_reg IS NULL AND is_auth = true"  
+
         const result = await instance.raw(`SELECT code_id, 
                                                   user_id, 
                                                   code, 
                                                   to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
-                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz
+                                                  to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz,
+                                                  is_reg,
+                                                  is_auth
                                            FROM ${this.table}
-                                           WHERE code_id = ? AND code = ?`, 
+                                           WHERE ${where}`, 
                                            [code_id ?? null, code ?? null]);
         return result?.rows[0];
     }

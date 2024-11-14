@@ -52,7 +52,7 @@ const confirmation_code = async (confirm) =>{
     
     await begin_transaction(instance);
     //0 индекс - code_id, 1 - code
-    const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1]);  
+    const code = await ConfirmationCodes.find_code(instance, confirm_cred[0], confirm_cred[1], true);  
     
     if(!code)
         throw new RegistrationError("Код подтверждения или code_id не найден");
