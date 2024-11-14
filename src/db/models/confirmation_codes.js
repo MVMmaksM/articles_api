@@ -3,10 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 class ConfirmationCodes {
     static table = "public.confirmation_codes";
 
-    static async add_code(instance, user_id, code){
+    static async add_code(instance, user_id, code, is_reg, is_auth){
         const code_id = uuidv4();    
-        const result = await instance.raw(`INSERT INTO ${this.table} (code_id, user_id, code)
-                                           VALUES(?,?,?)`, [code_id, user_id ?? null, code ?? null]);
+        const result = await instance.raw(`INSERT INTO ${this.table} (code_id, user_id, code, is_reg, is_auth)
+                                           VALUES(?,?,?,?,?)`, [code_id, user_id ?? null, code ?? null, is_reg ?? null, is_auth ?? null]);
 
         return code_id;
     } 
@@ -31,16 +31,16 @@ class ConfirmationCodes {
         return result?.rowCount;
     }
 
-    static async get_latest_user_code(instance, user_id){
+    static async get_latest_code(instance, user_id, is_reg, is_auth){
         const result = await instance.raw(`SELECT code_id,
                                                   user_id,
                                                   code,
                                                   to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                                   to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz
                                            FROM ${this.table}
-                                           WHERE user_id = ?
+                                           WHERE user_id = ? AND is_reg = ? AND is_auth = ?
                                            ORDER BY created_on_tz DESC`,
-                                           [user_id]);
+                                           [user_id, is_reg ?? null, is_auth ?? null]);
 
         return result?.rows[0];
     }

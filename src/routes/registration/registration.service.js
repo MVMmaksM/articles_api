@@ -5,7 +5,7 @@ import ERRORS from "../../errors/error_codes/error_codes_reg.js";
 import begin_transaction from "../../db/begin_transaction.js"
 import commit_transaction from "../../db/commit_transaction.js";
 import RegistrationError from "../../errors/registration_error.js"
-import { format, getTime, getUnixTime } from "date-fns";
+
 
 const registration_phone = async(cred_phone)=>{   
     const instance = global.instance; 
@@ -74,18 +74,18 @@ const confirmation_code = async (confirm) =>{
 }
 
 const create_confirm_code = async(instance, user_id)=>{
-    const latest_code =  await ConfirmationCodes.get_latest_user_code(instance, user_id);
+    const latest_code_reg =  await ConfirmationCodes.get_latest_code(instance, user_id, true);
 
-    if(latest_code){
+    if(latest_code_reg){
         //время действия кода в минутах
         const time_action_code = 5;
 
-        if((Date.now() - new Date(latest_code?.created_on_tz).getTime()) < time_action_code*60000)
+        if((Date.now() - new Date(latest_code_reg?.created_on_tz).getTime()) < time_action_code*60000)
             throw new RegistrationError("Время действия последнего кода подтверждения еще не истекло");
     }
     
     const confirmation_code = create_random_code();  
-    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code); 
+    const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code, true); 
 
     return code_id;
 }
