@@ -12,7 +12,7 @@ CREATE TABLE public.users (
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NULL,
 	first_name varchar(255) NULL,
 	last_name varchar(255) NULL,
-	confirm bool DEFAULT false NOT NULL,
+	is_confirm bool DEFAULT false NOT NULL,
 	CONSTRAINT uq_phone UNIQUE (phone),
 	CONSTRAINT users_pkey PRIMARY KEY (user_id)
 );
