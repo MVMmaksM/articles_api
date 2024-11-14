@@ -38,15 +38,19 @@ class ConfirmationCodes {
     }
 
     static async get_latest_code(instance, user_id, is_reg, is_auth){
+        const where = is_reg ? 
+        "user_id = ? AND is_reg = true AND is_auth IS NULL" :
+        "user_id = ? AND is_reg IS NULL AND is_auth = true";
+
         const result = await instance.raw(`SELECT code_id,
                                                   user_id,
                                                   code,
                                                   to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                                   to_char(used_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS used_on_tz
                                            FROM ${this.table}
-                                           WHERE user_id = ? AND is_reg = ? AND is_auth = ?
+                                           WHERE ${where}
                                            ORDER BY created_on_tz DESC`,
-                                           [user_id, is_reg ?? null, is_auth ?? null]);
+                                           [user_id]);
 
         return result?.rows[0];
     }
