@@ -18,12 +18,12 @@ const registration_phone = async(cred_phone)=>{
     const user = await Users.find_user_phone(instance, phone_number);
 
     //если юзер существует и подтвержден, то пусть аутентифицируется
-    if(user && user?.confirm){
+    if(user && user?.is_confirm){
         throw new RegistrationError("Пользователь с указанным номером телефона уже существует, аутентифицируйтесь");
     }  
 
     //если юзер существует, но не подтвержден, то пусть запрашивает повторно код
-    if(user && !user?.confirm){
+    if(user && !user?.is_confirm){
         throw new RegistrationError("Пользователь с указанным номером телефона уже существует. "  +
                                      "Учетная запись не подтверждена, для подтверждения учетной записи повторно запросите код подтверждения");
     }

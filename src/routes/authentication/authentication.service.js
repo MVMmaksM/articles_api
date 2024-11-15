@@ -2,7 +2,9 @@ import crypto from "crypto";
 import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
 import UserTokens from "../../db/models/user_tokens.js";
-import AuthenticationError from "../../errors/authentication_error.js"
+import AuthenticationError from "../../errors/authentication_error.js";
+import begin_transaction from "../../db/begin_transaction.js";
+import commit_transaction from "../../db/commit_transaction.js";
 
 const access_user = async (cred_phone)=>{
     const instance = global.instance;
@@ -15,15 +17,20 @@ const access_user = async (cred_phone)=>{
     if(!user)
         throw new AuthenticationError("Пользователь с указанным номером телефона не найден, зарегистрируйтесь", 404, "Not found");
     
-    if(!user?.confirm)
+    if(!user?.is_confirm)
         throw new AuthenticationError("Учетная запись не подтверждена. Подтвердите учетную запись запросив повторно код подтверждения.");
 
     return user?.user_id;
 }
 
 const create_user_token = async(user_id) =>{
-    const token = generate_token();        
+    const instance = global.instance;
+
+    const token = generate_token(); 
+       
+    await begin_transaction(instance);    
     const user_token_id = await UserTokens.add_token(instance, user_id, token);
+    await commit_transaction(instance);
     
     return token;
 }
@@ -31,7 +38,10 @@ const create_user_token = async(user_id) =>{
 const create_confirm_code = async (user_id)=>{
     const instance = global.instance;
     const confirmation_code = Math.floor(100000 + Math.random() * 900000);
+
+    await begin_transaction(instance);
     const code_id = await ConfirmationCodes.add_code(instance, user_id, confirmation_code, null, true);
+    await commit_transaction(instance);
     return code_id;
 }
 
@@ -64,7 +74,7 @@ const confirmation_code = async (confirm) =>{
     await ConfirmationCodes.used_confirm_code(instance, code?.code_id);
    
     await commit_transaction(instance);
-    return code?.code_id;
+    return code?.user_id;
 }
 
 export {access_user, create_user_token, create_confirm_code, confirmation_code}

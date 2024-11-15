@@ -4,6 +4,7 @@ class UserTokens {
 
     static async add_token(instance, user_id, token){
         const user_token_id = await this.get_sequence(instance);
+        console.log(user_token_id)
         const user_token = await instance.raw(`INSERT INTO ${this.user_tokens} (user_token_id, user_id, token)
                                                VALUES(?,?,?)`, [user_token_id, user_id, token]);
         return user_token_id;

@@ -21,7 +21,7 @@ auth_router.post("/phone/confirm", Validator.confirm_code_validate, async(req, r
     try{
         const confirm_code = req.headers["confirm"];
     
-        const user_id = await confirmation_code(confirm_code);   
+        const user_id = await confirmation_code(confirm_code);
         const user_token = await create_user_token(user_id);
     
         res.json({user_token: user_token});
