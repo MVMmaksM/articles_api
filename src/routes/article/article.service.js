@@ -2,7 +2,6 @@ import Articles from "../../db/models/articles.js";
 import begin_transaction from "../../db/begin_transaction.js"
 import commit_transaction from "../../db/commit_transaction.js"
 import ArticleError from "../../errors/articles_error.js";
-import ERRORS from "../../errors/error_codes/error_codes_article.js";
 
 let seq_article = 3;
 

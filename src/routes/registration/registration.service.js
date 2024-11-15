@@ -1,7 +1,5 @@
 import Users from "../../db/models/users.js";
 import ConfirmationCodes from "../../db/models/confirmation_codes.js";
-import AppError from "../../errors/app_error.js";
-import ERRORS from "../../errors/error_codes/error_codes_reg.js";
 import begin_transaction from "../../db/begin_transaction.js"
 import commit_transaction from "../../db/commit_transaction.js";
 import RegistrationError from "../../errors/registration_error.js"

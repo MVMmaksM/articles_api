@@ -1,7 +1,5 @@
 import { registration_phone, confirmation_code, get_again_code } from "./registration.service.js";
 import express from "express";
-import AppError from "../../errors/app_error.js"
-import ERRORS from "../../errors/error_codes/error_codes_reg.js"
 import Validator from "../../validator/validator.js";
 
 const registration_router = express.Router();

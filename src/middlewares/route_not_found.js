@@ -1,7 +1,16 @@
-import ERRORS from "../errors/error_codes/error_codes_not_found.js";
+const error_route_not_found = {
+    name: "Error route not found",
+    status_code: 404,
+    error: "Bad Request"
+}
 
 async function route_not_found (req, res) {
-    res.status(404).json({error_code: ERRORS.ROUTE_NOT_FOUND.error_code, error_msg: ERRORS.ROUTE_NOT_FOUND.error_message});
+    res.status(404).json({
+        name: error_route_not_found.name,
+        status_code: error_route_not_found.status_code,
+        error: error_route_not_found.error,
+        details: `Указанный роут: ${req?.originalUrl} не найден`
+    });
 }
 
 export default route_not_found;
