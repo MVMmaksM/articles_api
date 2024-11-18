@@ -57,7 +57,8 @@ article_router.delete("/:article_id", Validator.article_id_validate, async(req, 
     try{
         const article_id = Number(req.params.article_id);
         await delete_article(article_id, req?.user?.user_id);
-    res.json({details: "Статья успешно удалена"});
+        
+        res.json({details: "Статья успешно удалена"});
     }catch(err){
         next(err);
     }    
