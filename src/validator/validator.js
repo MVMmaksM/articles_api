@@ -1,5 +1,7 @@
 import ValidationQueryParamsError from "../errors/validation_query_params_error.js";
-import VAlidationHeadersError from "../errors/validation_headers_error.js";
+import ValidationHeadersError from "../errors/validation_headers_error.js";
+import ValidationParamsError from "../errors/validation_params_error.js";
+import ValidationCreateArticleError from "../errors/validation_create_article_error.js";
 import Users from "../db/models/users.js";
 import is_base64 from "is-base64";
 
@@ -34,19 +36,19 @@ export default class Validator{
             let phone = req?.headers[key_hedears]; 
 
             if(!phone)
-                throw new VAlidationHeadersError(`Не установлен обязательный заголовок ${key_hedears} в headers`);
+                throw new ValidationHeadersError(`Не установлен обязательный заголовок ${key_hedears} в headers`);
 
             if(!is_base64(phone))
-                throw new VAlidationHeadersError(`Обязательный заголовок ${key_hedears} в headers не является строкой в кодировке base64`);           
+                throw new ValidationHeadersError(`Обязательный заголовок ${key_hedears} в headers не является строкой в кодировке base64`);           
 
             phone = Buffer.from(phone, "base64").toString();     
             phone = Number(phone);
             
             if(!phone)
-                throw new VAlidationHeadersError("Не верно указан номер телефона");
+                throw new ValidationHeadersError("Не верно указан номер телефона");
 
             if(phone.toString().length != 10)
-                throw new VAlidationHeadersError("Длина номера телефона должна быть 10 цифр");
+                throw new ValidationHeadersError("Длина номера телефона должна быть 10 цифр");
 
             next();
         }catch(err){
@@ -85,5 +87,47 @@ export default class Validator{
         }catch(err){
             next(err);
         }
+    }
+
+    static async article_id_validate(req, res, next){
+        try{
+            let article_id = Number(req?.params?.article_id);
+
+            if(!article_id)
+                throw new ValidationParamsError("Обязательный параметр article_id должен быть целым числом");
+
+            if(article_id < 0 || article_id == 0)
+                throw new ValidationParamsError("Обязательный параметр article_id должен быть больше 0");
+
+            next();            
+        }catch(err){
+            next(err);
+        }
+    }
+
+    static async create_article_validate(req, res, next){
+        try{
+            const title = req?.body?.title;
+            const note = req?.body?.note;
+
+        if(!title)
+            throw new ValidationCreateArticleError("Обязательное поле title не указано, у статьи обязательно должно быть название");
+
+        if(title === "")
+            throw new ValidationCreateArticleError("title не может быть пустой строкой");
+
+        if(title.length > 256)
+            throw new ValidationCreateArticleError("title не может быть длиннее 256 символов");
+
+        if(!note)
+            throw new ValidationCreateArticleError("Обязательное поле note не указано, статья не может быть пустой");
+
+        if(note === "")
+            throw new ValidationCreateArticleError("note не может быть пустой строкой");
+
+        next();
+        }catch(err){
+            next(err);
+        }     
     }
 }

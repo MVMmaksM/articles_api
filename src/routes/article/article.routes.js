@@ -14,27 +14,24 @@ article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
 });
 
 //получение детализации статьи
-article_router.get("/:article_id", async(req, res)=> {
-    const article_id = parseInt(req.params.article_id);
-
-    if(!article_id || article_id < 0)
-        throw Error("article_id parametr is not valid");
+article_router.get("/:article_id", Validator.article_id_validate, async(req, res, next)=> {
+    try{
+        const article_id = Number(req.params.article_id);
     
-    const article = await get_article_detail(article_id);
-
-    if(!article)
-        throw Error(`article with article_id: ${article_id} not found`);
-
-    res.json(article);
+        const article = await get_article_detail(article_id);
+        res.json(article);
+    }catch(err){
+        next(err);
+    }
 });
 
 //создание статьи
-article_router.post("/", async(req, res, next) =>{
+article_router.post("/", Validator.create_article_validate, async(req, res, next) =>{
     try{
         const {title, note} = req.body;
-        const created_by = req?.user?.user_id;
+        const user_id = req?.user?.user_id;        
          
-        const article = await create_article({title, note, created_by});  
+        const article = await create_article({title, note, user_id});  
     
         res.status(201).json(article);
     }catch(err){
@@ -43,20 +40,12 @@ article_router.post("/", async(req, res, next) =>{
 });
 
 //изменение статьи
-article_router.put("/:article_id", (req, res) => {
-    const article_id = parseInt(req.params.article_id);
-    const {title, note} = req.body;
+article_router.put("/:article_id", Validator.article_id_validate, async(req, res) => {
+    const article_id = Number(req.params.article_id);
+    const {title, note} = req.body; 
 
-    if(!article_id || article_id < 0)
-        throw Error("article_id parametr is not valid");
-
-    const article = get_article_detail(article_id);
-
-    if(!article)
-        throw Error(`article with article_id: ${article_id} not found`);
-
-    const articleUpdate = update_article({article_id, title, note});
-    res.json(articleUpdate);
+    const article_pdated = await update_article({article_id, title, note});
+    res.json(article_pdated);
 });
 
 /*//удаление статьи

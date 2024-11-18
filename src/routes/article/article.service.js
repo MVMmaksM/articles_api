@@ -8,7 +8,17 @@ let seq_article = 3;
 //детализация статьи
 const get_article_detail = async (article_id)=>{
     const instance = global.instance;
-    return await Articles.get_detail_article(instance, article_id);
+    const article = await Articles.get_detail_article(instance, article_id);
+
+    if(!article)
+        throw new ArticleError({
+            name: "Error article not found",
+            status_code: 404,
+            error: "Not found",
+            details: "Статья с указанным article_id не найдена"
+    });
+
+    return article;
 }
 
 //список статей
@@ -18,24 +28,33 @@ const get_articles = async(limit, offset)=>{
 }
 
 //создание статьи
-const create_article = async({title, note, created_by})=>{    
+const create_article = async({title, note, user_id})=>{    
     const instance = global.instance; 
 
     await begin_transaction(instance);
-    const result = await Articles.create_article(instance, {title, note, created_by});
+    const result = await Articles.create_article(instance, {title, note, author_id: user_id});
     await commit_transaction(instance);
 
     return result;
 }
 
-const update_article = ({article_id, title, note}) => {
-    const index_article_updated = articles.indexOf(articles.find(a => a.article_id === article_id));  
-    
-    articles[index_article_updated].note = note;
-    articles[index_article_updated].title = title;
-    articles[index_article_updated].update_on_tz = new Date().toISOString()
+const update_article = async({article_id, title, note}) => {
+    const instance = global.instance;
+    const article = await Articles.get_detail_article(instance, article_id);
 
-    return articles[index_article_updated];
+    if(!article)
+        throw new ArticleError({
+            name: "Error article not found",
+            status_code: 404,
+            error: "Not found",
+            details: "Статья с указанным article_id не найдена"
+    });
+
+    await begin_transaction(instance);
+    const updated_article = await Articles.update_article(instance, article_id, title, note);
+    await commit_transaction(instance);    
+    
+    return updated_article;
 }
 
 //удаление статьи
