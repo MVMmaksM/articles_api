@@ -1,7 +1,7 @@
 import ValidationQueryParamsError from "../errors/validation_query_params_error.js";
 import ValidationHeadersError from "../errors/validation_headers_error.js";
 import ValidationParamsError from "../errors/validation_params_error.js";
-import ValidationCreateArticleError from "../errors/validation_create_article_error.js";
+import ValidationBodyArticleError from "../errors/validation_create_article_error.js";
 import Users from "../db/models/users.js";
 import is_base64 from "is-base64";
 
@@ -105,25 +105,25 @@ export default class Validator{
         }
     }
 
-    static async create_article_validate(req, res, next){
+    static async body_article_validate(req, res, next){
         try{
             const title = req?.body?.title;
             const note = req?.body?.note;
 
         if(!title)
-            throw new ValidationCreateArticleError("Обязательное поле title не указано, у статьи обязательно должно быть название");
+            throw new ValidationBodyArticleError("Обязательное поле title не указано, у статьи обязательно должно быть название");
 
         if(title === "")
-            throw new ValidationCreateArticleError("title не может быть пустой строкой");
+            throw new ValidationBodyArticleError("title не может быть пустой строкой");
 
         if(title.length > 256)
-            throw new ValidationCreateArticleError("title не может быть длиннее 256 символов");
+            throw new ValidationBodyArticleError("title не может быть длиннее 256 символов");
 
         if(!note)
-            throw new ValidationCreateArticleError("Обязательное поле note не указано, статья не может быть пустой");
+            throw new ValidationBodyArticleError("Обязательное поле note не указано, статья не может быть пустой");
 
         if(note === "")
-            throw new ValidationCreateArticleError("note не может быть пустой строкой");
+            throw new ValidationBodyArticleError("note не может быть пустой строкой");
 
         next();
         }catch(err){

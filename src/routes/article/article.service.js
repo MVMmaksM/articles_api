@@ -55,7 +55,7 @@ const update_article = async({article_id, title, note, user_id}) => {
             name: "Error article update",
             status_code: 403,
             error: "Forbidden",
-            details: "У вас нет доступа к указанной статье, изменять статью может только автор"
+            details: "У вас нет доступа к указанной статье, обновлять статью может только автор"
     });
 
     await begin_transaction(instance);
@@ -67,15 +67,28 @@ const update_article = async({article_id, title, note, user_id}) => {
 
 //удаление статьи
 const delete_article = async(article_id, user_id)=>{
-    const article = await Articles.get_detail_article(instance, article_id); 
-    
+    const instance = global.instance; 
+    const article = await Articles.get_detail_article(instance, article_id);
+
     if(!article)
-        throw new ArticleError(ERRORS.NOT_FOUND);
+        throw new ArticleError({
+            name: "Error article not found",
+            status_code: 404,
+            error: "Not found",
+            details: "Статья с указанным article_id не найдена"
+    });
 
-    if(article.created_by != user_id)
-        throw new ArticleError(ERRORS.FORBIDDEN_DELETE);
+    if(article?.author_id != user_id)
+        throw new ArticleError({
+            name: "Error article update",
+            status_code: 403,
+            error: "Forbidden",
+            details: "У вас нет доступа к указанной статье, удалить статью может только автор"
+    });
 
-    return true;
+    await begin_transaction(instance);
+    await Articles.delete_article(instance, article_id);    
+    await commit_transaction(instance); 
 }
 
 export {get_article_detail, get_articles, create_article, update_article, delete_article};

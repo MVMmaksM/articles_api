@@ -43,10 +43,13 @@ class Articles{
 
     //статью не удаляем, а только дизаейблим, удлаять по крону раз в день, например
     static async delete_article(instance, article_id){
-        await instance.raw(`UPDATE ${this.articles}
-                            SET is_deleted = 1 AND delete_on_tz = timestamp`);
+        await instance.raw(`DELETE FROM ${this.article_notes}
+                            WHERE article_id = ?`,
+                            [article_id]);
 
-        
+        return (await instance.raw(`DELETE FROM ${this.articles}
+                            WHERE article_id = ?`,
+                            [article_id])).rowCount;                        
     }
 
     static async update_article(instance, article_id, title, note){

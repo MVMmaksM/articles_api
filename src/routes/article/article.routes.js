@@ -26,7 +26,7 @@ article_router.get("/:article_id", Validator.article_id_validate, async(req, res
 });
 
 //создание статьи
-article_router.post("/", Validator.create_article_validate, async(req, res, next) =>{
+article_router.post("/", Validator.body_article_validate, async(req, res, next) =>{
     try{
         const {title, note} = req.body;
         const user_id = req?.user?.user_id;        
@@ -39,8 +39,8 @@ article_router.post("/", Validator.create_article_validate, async(req, res, next
     }   
 });
 
-//изменение статьи
-article_router.put("/:article_id", Validator.article_id_validate, async(req, res, next) => {
+//обновление статьи
+article_router.put("/:article_id", Validator.article_id_validate, Validator.body_article_validate, async(req, res, next) => {
     try{
         const article_id = Number(req.params.article_id);
         const {title, note} = req.body; 
@@ -52,21 +52,15 @@ article_router.put("/:article_id", Validator.article_id_validate, async(req, res
     }
 });
 
-/*//удаление статьи
-article_router.delete("/:article_id", async(req, res) => {
-    const article_id = parseInt(req.params.article_id);
-
-    if(!article_id || article_id < 0)
-        throw Error("article_id parametr is not valid");
-
-    const article = get_article_detail(article_id);
-
-    if(!article)
-        throw Error(`article with article_id: ${article_id} not found`);
-
-    const result = async delete_article(article_id);
-
-    res.json({result: true});
-});*/
+//удаление статьи
+article_router.delete("/:article_id", Validator.article_id_validate, async(req, res, next) => {
+    try{
+        const article_id = Number(req.params.article_id);
+        await delete_article(article_id, req?.user?.user_id);
+    res.json({details: "Статья успешно удалена"});
+    }catch(err){
+        next(err);
+    }    
+});
 
 export default article_router;
