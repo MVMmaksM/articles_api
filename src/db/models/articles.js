@@ -51,7 +51,7 @@ class Articles{
 
     static async update_article(instance, article_id, title, note){
         await instance.raw(`UPDATE ${this.articles}
-                            SET title = ?
+                            SET title = ?, updated_on_tz = NOW() AT TIME ZONE 'UTC'
                             WHERE article_id = ?`,
                             [title, article_id]);
 

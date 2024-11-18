@@ -40,12 +40,16 @@ article_router.post("/", Validator.create_article_validate, async(req, res, next
 });
 
 //изменение статьи
-article_router.put("/:article_id", Validator.article_id_validate, async(req, res) => {
-    const article_id = Number(req.params.article_id);
-    const {title, note} = req.body; 
+article_router.put("/:article_id", Validator.article_id_validate, async(req, res, next) => {
+    try{
+        const article_id = Number(req.params.article_id);
+        const {title, note} = req.body; 
 
-    const article_pdated = await update_article({article_id, title, note});
+        const article_pdated = await update_article({article_id, title, note, user_id: req?.user?.user_id});
     res.json(article_pdated);
+    }catch(err){
+        next(err);
+    }
 });
 
 /*//удаление статьи

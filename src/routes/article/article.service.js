@@ -38,7 +38,7 @@ const create_article = async({title, note, user_id})=>{
     return result;
 }
 
-const update_article = async({article_id, title, note}) => {
+const update_article = async({article_id, title, note, user_id}) => {
     const instance = global.instance;
     const article = await Articles.get_detail_article(instance, article_id);
 
@@ -48,6 +48,14 @@ const update_article = async({article_id, title, note}) => {
             status_code: 404,
             error: "Not found",
             details: "Статья с указанным article_id не найдена"
+    });
+
+    if(article?.author_id != user_id)
+        throw new ArticleError({
+            name: "Error article update",
+            status_code: 403,
+            error: "Forbidden",
+            details: "У вас нет доступа к указанной статье, изменять статью может только автор"
     });
 
     await begin_transaction(instance);
