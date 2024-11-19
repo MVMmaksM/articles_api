@@ -1,27 +1,37 @@
 class Articles{
     static articles = 'public.articles';
     static article_notes = 'public.article_notes';
+    static article_views = 'public.article_views';
 
     static async get_articles(instance, limit, offset){
-        return (await instance.raw(`SELECT article_id, created_by, title, created_on_tz, updated_on_tz
-                                  FROM ${this.articles}
+        return (await instance.raw(`SELECT a.article_id,                                             
+                                           a.title, 
+                                           to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
+                                           to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
+                                           a.author_id,
+                                           CONCAT(u.first_name, '',u.last_name) AS author_str
+                                  FROM ${this.articles} a
+                                  INNER JOIN users u ON u.user_id = a.author_id
+                                  ORDER BY a.created_on_tz DESC
                                   LIMIT ?
                                   OFFSET ?`, [limit ?? 200, offset ?? 0]))?.rows;
     }
 
     static async get_detail_article(instance, article_id){
-        return (await instance.raw(`SELECT a.article_id, 
-                                           a.author_id, 
-                                           u.first_name AS author_first_name, 
-                                           u.last_name AS author_last_name, 
-                                           a.title, 
-                                           CONCAT(u.first_name, '',u.last_name) AS author_str,
+        return (await instance.raw(`SELECT a.article_id,                                                                                       
                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
-                                           an.note
+                                           a.title, 
+                                           an.note,
+                                           a.author_id, 
+                                           u.first_name AS author_first_name, 
+                                           u.last_name AS author_last_name,
+                                           CONCAT(u.first_name, '',u.last_name) AS author_str,
+                                           av.count AS count_view
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id
+                                    INNER JOIN article_views av ON a.article_id = av.article_id
                                     WHERE a.article_id = ?`, [article_id]))?.rows[0];
     }
 
@@ -36,13 +46,12 @@ class Articles{
                                            VALUES(?,?,?);`, [article_id, title, author_id]);
 
         await instance.raw(`INSERT INTO ${this.article_notes} (article_id, note)
-                            VALUES(?, ?);`, [article_id, note]);
+                            VALUES(?, ?);`, [article_id, note]);       
                                            
         return await this.get_detail_article(instance, article_id);
     }
 
-    //статью не удаляем, а только дизаейблим, удлаять по крону раз в день, например
-    static async delete_article(instance, article_id){
+    static async delete_article(instance, article_id){                     
         await instance.raw(`DELETE FROM ${this.article_notes}
                             WHERE article_id = ?`,
                             [article_id]);

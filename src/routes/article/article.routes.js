@@ -16,9 +16,9 @@ article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
 //получение детализации статьи
 article_router.get("/:article_id", Validator.article_id_validate, async(req, res, next)=> {
     try{
-        const article_id = Number(req.params.article_id);
-    
+        const article_id = Number(req.params.article_id);    
         const article = await get_article_detail(article_id);
+
         res.json(article);
     }catch(err){
         next(err);

@@ -1,6 +1,7 @@
 import Articles from "../../db/models/articles.js";
-import begin_transaction from "../../db/begin_transaction.js"
-import commit_transaction from "../../db/commit_transaction.js"
+import ArticleViews from "../../db/models/article_views.js";
+import begin_transaction from "../../db/begin_transaction.js";
+import commit_transaction from "../../db/commit_transaction.js";
 import ArticleError from "../../errors/articles_error.js";
 
 let seq_article = 3;
@@ -8,7 +9,11 @@ let seq_article = 3;
 //детализация статьи
 const get_article_detail = async (article_id)=>{
     const instance = global.instance;
+
+    await begin_transaction(instance);
+    await ArticleViews.inc_view(instance, article_id);   
     const article = await Articles.get_detail_article(instance, article_id);
+    await commit_transaction(instance);
 
     if(!article)
         throw new ArticleError({
@@ -32,10 +37,11 @@ const create_article = async({title, note, user_id})=>{
     const instance = global.instance; 
 
     await begin_transaction(instance);
-    const result = await Articles.create_article(instance, {title, note, author_id: user_id});
+    const article = await Articles.create_article(instance, {title, note, author_id: user_id});
+    await ArticleViews.create_view(instance, article?.article_id);
     await commit_transaction(instance);
 
-    return result;
+    return article;
 }
 
 const update_article = async({article_id, title, note, user_id}) => {
@@ -67,7 +73,7 @@ const update_article = async({article_id, title, note, user_id}) => {
 
 //удаление статьи
 const delete_article = async(article_id, user_id)=>{
-    const instance = global.instance; 
+    const instance = global.instance;     
     const article = await Articles.get_detail_article(instance, article_id);
 
     if(!article)
@@ -87,8 +93,13 @@ const delete_article = async(article_id, user_id)=>{
     });
 
     await begin_transaction(instance);
+    await ArticleViews.delete_view(instance, article_id);
     await Articles.delete_article(instance, article_id);    
     await commit_transaction(instance); 
+}
+
+const inc_view = async(article_id)=>{
+
 }
 
 export {get_article_detail, get_articles, create_article, update_article, delete_article};
