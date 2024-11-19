@@ -46,7 +46,7 @@ const create_confirm_code = async (user_id)=>{
 }
 
 const generate_token = ()=>{
-    return crypto.randomBytes(48).toString("base64");   
+    return crypto.randomBytes(128).toString("base64");   
 }
 
 const confirmation_code = async (confirm) =>{  
