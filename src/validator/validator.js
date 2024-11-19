@@ -8,8 +8,18 @@ import is_base64 from "is-base64";
 export default class Validator{
     static async pagination_validate(req, res, next){
         try{
-            const offset = Number(req?.query?.offset);
-            const limit = Number(req?.query?.limit);      
+
+            let offset = req?.query?.offset;
+            let limit = req?.query?.limit;
+
+            if(offset === "")
+                throw new ValidationQueryParamsError('Обязательный query-параметр offset не может быть пустым');
+
+            if(limit === "")
+                throw new ValidationQueryParamsError('Обязательный query-параметр limit не может быть пустым');
+
+            offset = Number(req?.query?.offset);
+            limit = Number(req?.query?.limit); 
 
             if(!Number.isInteger(offset) || Number.isNaN(offset))          
                 throw new ValidationQueryParamsError('Обязательный query-параметр offset принимает только целые числа');
