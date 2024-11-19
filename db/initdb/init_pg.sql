@@ -93,3 +93,20 @@ CREATE TABLE public.article_notes (
 -- public.article_notes внешние включи
 
 ALTER TABLE public.article_notes ADD CONSTRAINT article_notes_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
+
+-- public.article_views определение
+
+-- Drop table
+
+-- DROP TABLE public.article_views;
+
+CREATE TABLE public.article_views (
+	article_id int4 NOT NULL,
+	count int4 DEFAULT 0 NULL,
+	CONSTRAINT article_views_pkey PRIMARY KEY (article_id)
+);
+
+
+-- public.article_views внешние включи
+
+ALTER TABLE public.article_views ADD CONSTRAINT article_views_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);

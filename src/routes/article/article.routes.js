@@ -64,4 +64,14 @@ article_router.delete("/:article_id", Validator.article_id_validate, async(req, 
     }    
 });
 
+//добавление статьи в избранное
+article_router.post("/favorites/:article_id", Validator.article_id_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req.params.article_id);
+        //TODO
+    }catch(err){
+        next(err);
+    }
+});
+
 export default article_router;

@@ -2,6 +2,7 @@ class Articles{
     static articles = 'public.articles';
     static article_notes = 'public.article_notes';
     static article_views = 'public.article_views';
+    static article_favorites = 'public.article_favorites';
 
     static async get_articles(instance, limit, offset){
         return (await instance.raw(`SELECT a.article_id,                                             
@@ -27,7 +28,8 @@ class Articles{
                                            u.first_name AS author_first_name, 
                                            u.last_name AS author_last_name,
                                            CONCAT(u.first_name, '',u.last_name) AS author_str,
-                                           av.count AS count_view
+                                           av.count AS count_view,
+                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id) AS is_favorites
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id

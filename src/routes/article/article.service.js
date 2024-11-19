@@ -11,6 +11,7 @@ const get_article_detail = async (article_id)=>{
     const instance = global.instance;
 
     await begin_transaction(instance);
+    //увеличиваем просмотры
     await ArticleViews.inc_view(instance, article_id);   
     const article = await Articles.get_detail_article(instance, article_id);
     await commit_transaction(instance);
