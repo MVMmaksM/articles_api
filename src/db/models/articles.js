@@ -74,6 +74,12 @@ class Articles{
                             WHERE article_id = ?`,
                             [note, article_id]);
     }
+
+    static async get_count_articles(instance, user_id){
+        return (await instance.raw(`SELECT COUNT(*)
+                                    FROM ${this.articles}
+                                    WHERE author_id = ?`, [user_id]))?.rows[0]?.count; 
+    }
 }
 
 export default Articles;

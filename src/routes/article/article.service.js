@@ -46,7 +46,7 @@ const create_article = async({title, note, user})=>{
     await ArticleViews.create_view(instance, article_id);
     //если пользователь не автор, то делаем его автором
     if(!user?.is_author)
-        await Users.set_is_author(instance, user?.user_id);
+        await Users.set_is_author(instance, user?.user_id, true);
     //получаем созданную статью
     const article = await Articles.get_detail_article(instance, article_id, user?.user_id);
     await commit_transaction(instance);
@@ -109,7 +109,14 @@ const delete_article = async(article_id, user_id)=>{
     //сначала очищаем просмотры
     await ArticleViews.delete_view(instance, article_id);
     //удалем статью
-    await Articles.delete_article(instance, article_id);    
+    await Articles.delete_article(instance, article_id);
+    //смотрим на количество статей
+    const count_articles_author = await Articles.get_count_articles(instance, user_id);  
+    //если у автора становится 0 статей после удаления, то он перестает быть автором
+    //не попадет в выборку авторов
+    if(Number(count_articles_author) === 0)
+        await Users.set_is_author(instance, user_id, false);
+    
     await commit_transaction(instance); 
 }
 

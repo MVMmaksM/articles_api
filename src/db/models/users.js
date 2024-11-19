@@ -53,10 +53,10 @@ class Users {
                       WHERE user_id = ?`, [user_id]))?.rows[0];
     }
 
-    static async set_is_author(instance, user_id){
+    static async set_is_author(instance, user_id, is_author){     
         return (await instance.raw(`UPDATE ${this.table}
-                                    SET is_author = true
-                                    WHERE user_id = ?;`, [user_id]))?.rowCount;
+                                    SET is_author = ?
+                                    WHERE user_id = ?;`, [is_author, user_id]))?.rowCount;
     }
 
     static async get_authors(instance, limit, offset){
