@@ -1,20 +1,22 @@
 import Articles from "../../db/models/articles.js";
 import ArticleViews from "../../db/models/article_views.js";
+import ArticleFavorites from "../../db/models/article_favorites.js";
 import begin_transaction from "../../db/begin_transaction.js";
 import commit_transaction from "../../db/commit_transaction.js";
 import ArticleError from "../../errors/articles_error.js";
+import ArticleFavoritesError from "../../errors/article_favorites_error.js";
 
 let seq_article = 3;
 
 //детализация статьи
-const get_article_detail = async (article_id)=>{
+const get_article_detail = async (article_id, user_id)=>{
     const instance = global.instance;
 
     await begin_transaction(instance);
     //увеличиваем просмотры
     await ArticleViews.inc_view(instance, article_id);
     //получаем статью   
-    const article = await Articles.get_detail_article(instance, article_id);
+    const article = await Articles.get_detail_article(instance, article_id, user_id);
     await commit_transaction(instance);
 
     if(!article)
@@ -44,7 +46,7 @@ const create_article = async({title, note, user_id})=>{
     //добавляем кол-во просмотров
     await ArticleViews.create_view(instance, article_id);
     //получаем созданную статью
-    const article = await Articles.get_detail_article(instance, article_id);
+    const article = await Articles.get_detail_article(instance, article_id, user_id);
     await commit_transaction(instance);
 
     return article;
@@ -52,7 +54,7 @@ const create_article = async({title, note, user_id})=>{
 
 const update_article = async({article_id, title, note, user_id}) => {
     const instance = global.instance;
-    const article = await Articles.get_detail_article(instance, article_id);
+    const article = await Articles.get_detail_article(instance, article_id, user_id);
 
     if(!article)
         throw new ArticleError({
@@ -74,7 +76,7 @@ const update_article = async({article_id, title, note, user_id}) => {
     //обновляем статью
     await Articles.update_article(instance, article_id, title, note);
     //получаем обновленную статью
-    const updated_article = await Articles.get_detail_article(instance, article_id);
+    const updated_article = await Articles.get_detail_article(instance, article_id, user_id);
     await commit_transaction(instance);    
     
     return updated_article;
@@ -83,7 +85,7 @@ const update_article = async({article_id, title, note, user_id}) => {
 //удаление статьи
 const delete_article = async(article_id, user_id)=>{
     const instance = global.instance;     
-    const article = await Articles.get_detail_article(instance, article_id);
+    const article = await Articles.get_detail_article(instance, article_id, user_id);
 
     if(!article)
         throw new ArticleError({
@@ -109,4 +111,29 @@ const delete_article = async(article_id, user_id)=>{
     await commit_transaction(instance); 
 }
 
-export {get_article_detail, get_articles, create_article, update_article, delete_article};
+const add_favorites = async(article_id, user_id)=>{
+    const instance = global.instance;
+    
+    const exists_article_favorites = await ArticleFavorites.exists(instance, article_id, user_id);
+
+    if(exists_article_favorites)    
+        throw new ArticleFavoritesError("Статья уже находится в избранном");
+
+    await begin_transaction(instance); 
+    await ArticleFavorites.add(instance, article_id, user_id);
+    await commit_transaction(instance); 
+} 
+
+const remove_favorites = async(article_id, user_id)=>{
+    const instance = global.instance;
+    
+    const exists_article_favorites = await ArticleFavorites.exists(instance, article_id, user_id);
+
+    if(!exists_article_favorites)
+        throw new ArticleFavoritesError("Статья не найдена в избранном");
+
+    await begin_transaction(instance); 
+    await ArticleFavorites.delete(instance, article_id, user_id);
+    await commit_transaction(instance);
+}
+export {get_article_detail, get_articles, create_article, update_article, delete_article, add_favorites, remove_favorites};

@@ -1,4 +1,4 @@
-import {get_article_detail, get_articles, create_article, update_article, delete_article} from "./article.service.js"
+import {get_article_detail, get_articles, create_article, update_article, delete_article, add_favorites, remove_favorites} from "./article.service.js"
 import express from "express";
 import Validator from "../../validator/validator.js";
 const article_router = express.Router();
@@ -17,7 +17,7 @@ article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
 article_router.get("/:article_id", Validator.article_id_validate, async(req, res, next)=> {
     try{
         const article_id = Number(req.params.article_id);    
-        const article = await get_article_detail(article_id);
+        const article = await get_article_detail(article_id, req?.user?.user_id);
 
         res.json(article);
     }catch(err){
@@ -68,7 +68,21 @@ article_router.delete("/:article_id", Validator.article_id_validate, async(req, 
 article_router.post("/favorites/:article_id", Validator.article_id_validate, async(req, res, next)=>{
     try{
         const article_id = Number(req.params.article_id);
-        //TODO
+        await add_favorites(article_id, req?.user?.user_id);
+        
+        res.json({details: "Статья добавлена в избранное"});
+    }catch(err){
+        next(err);
+    }
+});
+
+//удаление статьи из избранного
+article_router.delete("/favorites/:article_id", Validator.article_id_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req.params.article_id);
+        await remove_favorites(article_id, req?.user?.user_id);
+        
+        res.json({details: "Статья удалена из избранного"});
     }catch(err){
         next(err);
     }

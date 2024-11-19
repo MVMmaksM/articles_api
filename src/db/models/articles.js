@@ -18,7 +18,7 @@ class Articles{
                                   OFFSET ?`, [limit ?? 200, offset ?? 0]))?.rows;
     }
 
-    static async get_detail_article(instance, article_id){
+    static async get_detail_article(instance, article_id, user_id){
         return (await instance.raw(`SELECT a.article_id,                                                                                       
                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
@@ -29,12 +29,12 @@ class Articles{
                                            u.last_name AS author_last_name,
                                            CONCAT(u.first_name, '',u.last_name) AS author_str,
                                            av.count AS count_view,
-                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id) AS is_favorites
+                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id
                                     INNER JOIN article_views av ON a.article_id = av.article_id
-                                    WHERE a.article_id = ?`, [article_id]))?.rows[0];
+                                    WHERE a.article_id = ?`, [user_id, article_id]))?.rows[0];
     }
 
     static async get_seq(instance){
