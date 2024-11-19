@@ -13,6 +13,7 @@ CREATE TABLE public.users (
 	first_name varchar(255) NULL,
 	last_name varchar(255) NULL,
 	is_confirm bool DEFAULT false NOT NULL,
+	is_author bool DEFAULT false NOT NULL,
 	CONSTRAINT uq_phone UNIQUE (phone),
 	CONSTRAINT users_pkey PRIMARY KEY (user_id)
 );
@@ -106,7 +107,24 @@ CREATE TABLE public.article_views (
 	CONSTRAINT article_views_pkey PRIMARY KEY (article_id)
 );
 
-
 -- public.article_views внешние включи
 
 ALTER TABLE public.article_views ADD CONSTRAINT article_views_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
+
+-- public.article_favorites определение
+
+-- Drop table
+
+-- DROP TABLE public.article_favorites;
+
+CREATE TABLE public.article_favorites (
+	article_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	CONSTRAINT article_favorites_pkey PRIMARY KEY (article_id, user_id)
+);
+
+
+-- public.article_favorites внешние включи
+
+ALTER TABLE public.article_favorites ADD CONSTRAINT article_favorites_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
+ALTER TABLE public.article_favorites ADD CONSTRAINT article_favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);

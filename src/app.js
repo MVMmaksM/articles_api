@@ -2,6 +2,7 @@ import express from "express";
 import article_router from "./routes/article/article.routes.js"
 import registration_router from "./routes/registration/registration.routes.js"
 import auth_router from "./routes/authentication/authentication.routes.js";
+import author_router from "./routes/author/author.routes.js";
 import authorize from "./middlewares/authorization.js";
 import create_instance from "./db/create_instance.js"
 import error_handler from "./middlewares/errors_handler.js";
@@ -23,6 +24,7 @@ app.use("/api/v1/authentication", auth_router);
 
 app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
+app.use("/api/v1/authors", author_router);
 
 //обработчик ошибок
 app.use("/", error_handler);

@@ -1,4 +1,11 @@
-import {get_article_detail, get_articles, create_article, update_article, delete_article, add_favorites, remove_favorites} from "./article.service.js"
+import {
+    get_article_detail, 
+    get_articles, 
+    create_article, 
+    update_article, 
+    delete_article, 
+    add_favorites, 
+    remove_favorites } from "./article.service.js"
 import express from "express";
 import Validator from "../../validator/validator.js";
 const article_router = express.Router();
@@ -29,9 +36,9 @@ article_router.get("/:article_id", Validator.article_id_validate, async(req, res
 article_router.post("/", Validator.body_article_validate, async(req, res, next) =>{
     try{
         const {title, note} = req.body;
-        const user_id = req?.user?.user_id;        
+        const user = req?.user;        
          
-        const article = await create_article({title, note, user_id});  
+        const article = await create_article({title, note, user});  
     
         res.status(201).json(article);
     }catch(err){

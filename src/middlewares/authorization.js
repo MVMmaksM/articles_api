@@ -1,4 +1,5 @@
 import UserTokens from "../db/models/user_tokens.js";
+import Users from "../db/models/users.js";
 import AuthorizationError from "../errors/authorize_error.js";
 
 const authorize = async (req, res, next)=>{  
@@ -14,7 +15,8 @@ const authorize = async (req, res, next)=>{
         if(!user)
             throw new AuthorizationError("Указанный токен не найден");
 
-        req.user = user;
+        
+        req.user = await Users.get_user_by_id(instance, user?.user_id);
         next();
     }catch(err){
         next(err);

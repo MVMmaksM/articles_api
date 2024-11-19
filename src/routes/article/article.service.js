@@ -5,8 +5,7 @@ import begin_transaction from "../../db/begin_transaction.js";
 import commit_transaction from "../../db/commit_transaction.js";
 import ArticleError from "../../errors/articles_error.js";
 import ArticleFavoritesError from "../../errors/article_favorites_error.js";
-
-let seq_article = 3;
+import Users from "../../db/models/users.js";
 
 //детализация статьи
 const get_article_detail = async (article_id, user_id)=>{
@@ -37,16 +36,19 @@ const get_articles = async(limit, offset)=>{
 }
 
 //создание статьи
-const create_article = async({title, note, user_id})=>{    
+const create_article = async({title, note, user})=>{    
     const instance = global.instance; 
 
     await begin_transaction(instance);
     //создаем статью
-    const article_id = await Articles.create_article(instance, {title, note, author_id: user_id});
+    const article_id = await Articles.create_article(instance, {title, note, author_id: user?.user_id});
     //добавляем кол-во просмотров
     await ArticleViews.create_view(instance, article_id);
+    //если пользователь не автор, то делаем его автором
+    if(!user?.is_author)
+        await Users.set_is_author(instance, user?.user_id);
     //получаем созданную статью
-    const article = await Articles.get_detail_article(instance, article_id, user_id);
+    const article = await Articles.get_detail_article(instance, article_id, user?.user_id);
     await commit_transaction(instance);
 
     return article;
