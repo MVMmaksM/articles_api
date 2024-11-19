@@ -50,7 +50,7 @@ class Articles{
         await instance.raw(`INSERT INTO ${this.article_notes} (article_id, note)
                             VALUES(?, ?);`, [article_id, note]);       
                                            
-        return await this.get_detail_article(instance, article_id);
+        return article_id;
     }
 
     static async delete_article(instance, article_id){                     
@@ -73,10 +73,6 @@ class Articles{
                             SET note = ?
                             WHERE article_id = ?`,
                             [note, article_id]);
-
-        const updated_article = await this.get_detail_article(instance, article_id);
-      
-        return updated_article;
     }
 }
 

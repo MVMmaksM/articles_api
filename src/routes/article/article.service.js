@@ -12,7 +12,8 @@ const get_article_detail = async (article_id)=>{
 
     await begin_transaction(instance);
     //увеличиваем просмотры
-    await ArticleViews.inc_view(instance, article_id);   
+    await ArticleViews.inc_view(instance, article_id);
+    //получаем статью   
     const article = await Articles.get_detail_article(instance, article_id);
     await commit_transaction(instance);
 
@@ -38,8 +39,12 @@ const create_article = async({title, note, user_id})=>{
     const instance = global.instance; 
 
     await begin_transaction(instance);
-    const article = await Articles.create_article(instance, {title, note, author_id: user_id});
-    await ArticleViews.create_view(instance, article?.article_id);
+    //создаем статью
+    const article_id = await Articles.create_article(instance, {title, note, author_id: user_id});
+    //добавляем кол-во просмотров
+    await ArticleViews.create_view(instance, article_id);
+    //получаем созданную статью
+    const article = await Articles.get_detail_article(instance, article_id);
     await commit_transaction(instance);
 
     return article;
@@ -66,7 +71,10 @@ const update_article = async({article_id, title, note, user_id}) => {
     });
 
     await begin_transaction(instance);
-    const updated_article = await Articles.update_article(instance, article_id, title, note);
+    //обновляем статью
+    await Articles.update_article(instance, article_id, title, note);
+    //получаем обновленную статью
+    const updated_article = await Articles.get_detail_article(instance, article_id);
     await commit_transaction(instance);    
     
     return updated_article;
@@ -94,13 +102,11 @@ const delete_article = async(article_id, user_id)=>{
     });
 
     await begin_transaction(instance);
+    //сначала очищаем просмотры
     await ArticleViews.delete_view(instance, article_id);
+    //удалем статью
     await Articles.delete_article(instance, article_id);    
     await commit_transaction(instance); 
-}
-
-const inc_view = async(article_id)=>{
-
 }
 
 export {get_article_detail, get_articles, create_article, update_article, delete_article};
