@@ -128,3 +128,26 @@ CREATE TABLE public.article_favorites (
 
 ALTER TABLE public.article_favorites ADD CONSTRAINT article_favorites_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
 ALTER TABLE public.article_favorites ADD CONSTRAINT article_favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+
+-- public.article_comments определение
+
+-- Drop table
+
+-- DROP TABLE public.article_comments;
+
+CREATE TABLE public.article_comments (
+	comment_id serial4 NOT NULL,
+	article_id int4 NOT NULL,
+	user_id int4 NOT NULL,
+	note text NULL,
+	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
+	CONSTRAINT article_comments_pkey PRIMARY KEY (comment_id)
+);
+CREATE INDEX ix_article_comments_article_id ON public.article_comments USING btree (article_id);
+CREATE INDEX ix_article_comments_user_id ON public.article_comments USING btree (user_id);
+
+
+-- public.article_comments внешние включи
+
+ALTER TABLE public.article_comments ADD CONSTRAINT article_comments_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
+ALTER TABLE public.article_comments ADD CONSTRAINT article_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
