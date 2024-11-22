@@ -5,7 +5,10 @@ import {
     update_article, 
     delete_article, 
     add_favorites, 
-    remove_favorites } from "./article.service.js"
+    remove_favorites,
+    add_comment,
+    get_comments,
+    delete_comment } from "./article.service.js"
 import express from "express";
 import Validator from "../../validator/validator.js";
 const article_router = express.Router();
@@ -90,6 +93,46 @@ article_router.delete("/favorites/:article_id", Validator.article_id_validate, a
         await remove_favorites(article_id, req?.user?.user_id);
         
         res.json({details: "Статья удалена из избранного"});
+    }catch(err){
+        next(err);
+    }
+});
+
+//добавление комментария к статье
+article_router.post("/:article_id/comments", Validator.article_id_validate, Validator.body_article_comment_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req.params.article_id);
+        const {note} = req?.body;
+
+        const comment = await add_comment(article_id, req?.user?.user_id, note);
+        res.status(201).json(comment);
+    }catch(err){
+        next(err);
+    }
+});
+
+//список комментариев к статье
+article_router.get("/:article_id/comments", 
+    Validator.article_id_validate, 
+    Validator.pagination_validate, 
+    Validator.article_comments_is_only_my_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req.params.article_id);
+        const comments = await get_comments(article_id, req?.query?.limit, req?.query?.offset, req?.query?.is_only_my, req?.user?.user_id);
+
+        res.json(comments);
+    }catch(err){
+        next(err);
+    }
+});
+
+article_router.delete("/:article_id/comments/:comment_id", Validator.article_id_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req?.params?.article_id);
+        const comment_id = Number(req?.params?.comment_id);
+
+        await delete_comment(comment_id, article_id, req?.user?.user_id);
+        res.json({details: "Комментарий успешно удален"});
     }catch(err){
         next(err);
     }

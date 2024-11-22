@@ -9,7 +9,7 @@ CREATE TABLE public.users (
 	login varchar(255) NULL,
 	"password" varchar(255) NULL,
 	phone int8 NOT NULL,
-	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NULL,
+	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
 	first_name varchar(255) NULL,
 	last_name varchar(255) NULL,
 	is_confirm bool DEFAULT false NOT NULL,

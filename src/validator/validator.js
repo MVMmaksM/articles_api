@@ -2,7 +2,7 @@ import ValidationQueryParamsError from "../errors/validation_query_params_error.
 import ValidationHeadersError from "../errors/validation_headers_error.js";
 import ValidationParamsError from "../errors/validation_params_error.js";
 import ValidationBodyArticleError from "../errors/validation_create_article_error.js";
-import Users from "../db/models/users.js";
+import ValidationBodyArticleCommentError from "../errors/validation_add_comment_erroe.js";
 import is_base64 from "is-base64";
 
 export default class Validator{
@@ -139,5 +139,36 @@ export default class Validator{
         }catch(err){
             next(err);
         }     
+    }
+
+    static async body_article_comment_validate(req, res, next){
+        try{
+            const note = req?.body?.note;
+
+            if(!note)
+                throw new ValidationBodyArticleCommentError("Обязательное поле note не может быть пустым");
+
+            if(note?.length > 2000)
+                throw new ValidationBodyArticleCommentError("Обязательное поле note не может быть длинее 2000 символов");
+            
+            next();
+        }catch(err){
+            next(err);
+        }
+    }
+
+    static async article_comments_is_only_my_validate(req, res, next){
+        try{              
+            let is_only_my = req?.query?.is_only_my;  
+            
+            if(is_only_my){
+                is_only_my = Number(is_only_my);
+                if(is_only_my !== 1)
+                    throw new ValidationQueryParamsError("Необязательный query-параметр is_only_my может принимает только 1");
+            }           
+            next();
+        }catch(err){
+            next(err);
+        }
     }
 }

@@ -1,10 +1,12 @@
 import Articles from "../../db/models/articles.js";
 import ArticleViews from "../../db/models/article_views.js";
 import ArticleFavorites from "../../db/models/article_favorites.js";
+import ArticleComments from "../../db/models/article_comments.js";
 import begin_transaction from "../../db/begin_transaction.js";
 import commit_transaction from "../../db/commit_transaction.js";
 import ArticleError from "../../errors/articles_error.js";
 import ArticleFavoritesError from "../../errors/article_favorites_error.js";
+import ArticleCommentsError from "../../errors/aerticle_comments_error.js";
 import Users from "../../db/models/users.js";
 
 //детализация статьи
@@ -145,4 +147,52 @@ const remove_favorites = async(article_id, user_id)=>{
     await ArticleFavorites.delete(instance, article_id, user_id);
     await commit_transaction(instance);
 }
-export {get_article_detail, get_articles, create_article, update_article, delete_article, add_favorites, remove_favorites};
+
+const add_comment = async(article_id, user_id, note)=>{
+    const instance = global.instance;
+
+    await begin_transaction(instance); 
+    const comment_id = await ArticleComments.add_comment(instance, article_id, user_id, note);
+    const comment = await ArticleComments.get_comment_by_id(instance, comment_id);
+    await commit_transaction(instance);
+
+    return comment;
+}
+
+const get_comments = async (article_id, limit, offset, is_only_my, user_id)=>{
+    const instance = global.instance;
+
+    const comments = is_only_my ? 
+    await ArticleComments.get_comments(instance, article_id, limit, offset, user_id) :
+    await ArticleComments.get_comments(instance, article_id, limit, offset);
+
+    return comments;
+}
+
+const delete_comment = async (comment_id, article_id, user_id)=>{
+    const instance = global.instance;
+
+    const comment = await ArticleComments.get_comment_by_id(instance, comment_id);
+
+    if(!comment || comment?.article_id != article_id)
+        throw new ArticleCommentsError("Комментарий не найден", 404);
+
+    if(comment?.user_id != user_id)
+        throw new ArticleCommentsError("Вы не можете удалить чужой комментарий", 403, "Forbidden");
+
+    await begin_transaction(instance); 
+    await ArticleComments.delete_comment(instance, comment_id);
+    await commit_transaction(instance);
+}
+
+export {
+    get_article_detail, 
+    get_articles, 
+    create_article, 
+    update_article, 
+    delete_article, 
+    add_favorites, 
+    remove_favorites,
+    add_comment,
+    get_comments,
+    delete_comment};
