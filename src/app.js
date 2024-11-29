@@ -1,13 +1,14 @@
 import express from "express";
-import article_router from "./routes/article/article.routes.js"
-import registration_router from "./routes/registration/registration.routes.js"
+import article_router from "./routes/article/article.routes.js";
+import registration_router from "./routes/registration/registration.routes.js";
 import auth_router from "./routes/authentication/authentication.routes.js";
 import author_router from "./routes/author/author.routes.js";
 import authorize from "./middlewares/authorization.js";
-import create_instance from "./db/create_instance.js"
+import create_instance from "./db/create_instance.js";
 import error_handler from "./middlewares/errors_handler.js";
-import route_not_found from "./middlewares/route_not_found.js"
-import {res_start_time, res_end_time} from "./middlewares/responce_time.js"
+import route_not_found from "./middlewares/route_not_found.js";
+import article_tags_router from "./routes/article_tags/article_tags.routes.js";
+import {res_start_time, res_end_time} from "./middlewares/responce_time.js";
 
 const app = express();
 app.use(express.json());
@@ -25,6 +26,7 @@ app.use("/api/v1/authentication", auth_router);
 app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
 app.use("/api/v1/authors", author_router);
+app.use("/api/v1/article_tags", article_tags_router);
 
 //обработчик ошибок
 app.use("/", error_handler);

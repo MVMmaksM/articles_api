@@ -8,6 +8,8 @@ import ArticleError from "../../errors/articles_error.js";
 import ArticleFavoritesError from "../../errors/article_favorites_error.js";
 import ArticleCommentsError from "../../errors/aerticle_comments_error.js";
 import Users from "../../db/models/users.js";
+import Tags from "../../db/models/tags.js";
+import ArticleTags from "../../db/models/article_tags.js";
 
 //детализация статьи
 const get_article_detail = async (article_id, user_id)=>{
@@ -38,19 +40,39 @@ const get_articles = async(limit, offset)=>{
 }
 
 //создание статьи
-const create_article = async({title, note, user})=>{    
+const create_article = async({title, note, tag_ids, user})=>{    
     const instance = global.instance; 
-
+   
     await begin_transaction(instance);
     //создаем статью
     const article_id = await Articles.create_article(instance, {title, note, author_id: user?.user_id});
+
+    if(tag_ids?.length > 0){
+        for (let tag_id of tag_ids){
+             //проверяем существование тэга
+            const tag = await Tags.get_tag_by_id(instance, tag_id);
+
+            if(!tag)
+                throw new ArticleError({
+                    name: "Error article create",
+                    status_code: 400,
+                    error: "Bad request",
+                    details: "Тэг с указанным tag_id не найден"});
+        }
+
+        for (let tag_id of tag_ids){
+            //добавляем тэги
+            await ArticleTags.add_article_tags(instance, article_id, tag_id);
+        }
+    }
+   
     //добавляем кол-во просмотров
     await ArticleViews.create_view(instance, article_id);
     //если пользователь не автор, то делаем его автором
     if(!user?.is_author)
         await Users.set_is_author(instance, user?.user_id, true);
     //получаем созданную статью
-    const article = await Articles.get_detail_article(instance, article_id, user?.user_id);
+    const article = await Articles.get_detail_article(instance, article_id, user?.user_id);     
     await commit_transaction(instance);
 
     return article;

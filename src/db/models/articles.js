@@ -29,7 +29,12 @@ class Articles{
                                            u.last_name AS author_last_name,
                                            CONCAT(u.first_name, '',u.last_name) AS author_str,
                                            av.count AS count_view,
-                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites
+                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites,
+                                           (SELECT ARRAY_AGG(t.note, ', ') as NOTE 
+                                            FROM tags t
+                                            WHERE t.tag_id IN (SELECT at.tag_id 
+                                                               FROM article_tags at 
+                                                               WHERE at.article_id = a.article_id)) AS tags_str                                            
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id

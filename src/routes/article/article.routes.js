@@ -38,10 +38,10 @@ article_router.get("/:article_id", Validator.article_id_validate, async(req, res
 //создание статьи
 article_router.post("/", Validator.body_article_validate, async(req, res, next) =>{
     try{
-        const {title, note} = req.body;
+        const {title, note, tag_ids} = req.body;
         const user = req?.user;        
          
-        const article = await create_article({title, note, user});  
+        const article = await create_article({title, note, tag_ids, user});  
     
         res.status(201).json(article);
     }catch(err){
@@ -126,6 +126,7 @@ article_router.get("/:article_id/comments",
     }
 });
 
+//удаление комментария
 article_router.delete("/:article_id/comments/:comment_id", Validator.article_id_validate, async(req, res, next)=>{
     try{
         const article_id = Number(req?.params?.article_id);
