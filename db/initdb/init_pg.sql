@@ -141,6 +141,7 @@ CREATE TABLE public.article_comments (
 	user_id int4 NOT NULL,
 	note text NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
+	comment_owner_id int4 NULL,
 	CONSTRAINT article_comments_pkey PRIMARY KEY (comment_id)
 );
 CREATE INDEX ix_article_comments_article_id ON public.article_comments USING btree (article_id);
@@ -151,3 +152,4 @@ CREATE INDEX ix_article_comments_user_id ON public.article_comments USING btree 
 
 ALTER TABLE public.article_comments ADD CONSTRAINT article_comments_article_id_fkey FOREIGN KEY (article_id) REFERENCES public.articles(article_id);
 ALTER TABLE public.article_comments ADD CONSTRAINT article_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
+ALTER TABLE public.article_comments ADD CONSTRAINT fk_comment_owner_id FOREIGN KEY (comment_owner_id) REFERENCES public.article_comments(comment_id);
