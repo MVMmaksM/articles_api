@@ -53,9 +53,9 @@ article_router.post("/", Validator.body_article_validate, async(req, res, next) 
 article_router.put("/:article_id", Validator.article_id_validate, Validator.body_article_validate, async(req, res, next) => {
     try{
         const article_id = Number(req.params.article_id);
-        const {title, note} = req.body; 
+        const {title, note, tag_ids} = req.body; 
 
-        const article_pdated = await update_article({article_id, title, note, user_id: req?.user?.user_id});
+        const article_pdated = await update_article({article_id, title, note, tag_ids, user_id: req?.user?.user_id});
     res.json(article_pdated);
     }catch(err){
         next(err);

@@ -13,6 +13,11 @@ class ArticleTags{
                                     INNER JOIN tags t ON at.tag_id = t.tag_id
                                     WHERE at.article_id = ?`, [article_id]))?.rows;
     }
+
+    static async delete(instance, article_id){
+            return (await instance.raw(`DELETE FROM ${this.table} 
+                                        WHERE article_id = ?`, [article_id]))?.rowCount
+    }
 }
 
 export default ArticleTags;

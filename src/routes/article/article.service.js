@@ -78,7 +78,7 @@ const create_article = async({title, note, tag_ids, user})=>{
     return article;
 }
 
-const update_article = async({article_id, title, note, user_id}) => {
+const update_article = async({article_id, title, note, tag_ids, user_id}) => {
     const instance = global.instance;
     const article = await Articles.get_detail_article(instance, article_id, user_id);
 
@@ -98,7 +98,33 @@ const update_article = async({article_id, title, note, user_id}) => {
             details: "У вас нет доступа к указанной статье, обновлять статью может только автор"
     });
 
-    await begin_transaction(instance);
+    await begin_transaction(instance);    
+    //если пришли тэги
+    if(tag_ids?.length > 0){
+        //удалем все тэги у статьи
+       await ArticleTags.delete(instance, article_id);
+
+       for (let tag_id of tag_ids){
+            //проверяем существование тэга
+            const tag = await Tags.get_tag_by_id(instance, tag_id);
+
+            if(!tag)
+                throw new ArticleError({
+                    name: "Error article create",
+                    status_code: 400,
+                    error: "Bad request",
+                    details: "Тэг с указанным tag_id не найден"});
+        }
+
+        for (let tag_id of tag_ids){
+            //добавляем тэги
+            await ArticleTags.add_article_tags(instance, article_id, tag_id);
+        }
+    }
+    else if(tag_ids?.length === 0){
+        //удалем все тэги у статьи
+       await ArticleTags.delete(instance, article_id);
+    }
     //обновляем статью
     await Articles.update_article(instance, article_id, title, note);
     //получаем обновленную статью

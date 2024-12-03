@@ -19,28 +19,30 @@ class Articles{
     }
 
     static async get_detail_article(instance, article_id, user_id){
-        return (await instance.raw(`SELECT a.article_id,                                                                                       
+        let article = (await instance.raw(`SELECT a.article_id,                                                                                       
                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
                                            a.title, 
                                            an.note,
                                            a.author_id, 
                                            u.first_name AS author_first_name, 
-                                           u.last_name AS author_last_name,
-                                           CONCAT(u.first_name, '',u.last_name) AS author_str,
+                                           u.last_name AS author_last_name,                                       
                                            av.count AS count_view,
-                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites,
-                                           (SELECT STRING_AGG(t.note, ', ') 
-                                            FROM tags t
-                                            WHERE t.tag_id IN (SELECT at.tag_id 
-                                                               FROM article_tags at 
-                                                               WHERE at.article_id = a.article_id)) AS tags_str,
-                                            (SELECT ARRAY_AGG(at.tag_id) FROM article_tags at WHERE at.article_id = a.article_id) AS tag_ids                        
+                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites                                                             
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id
                                     INNER JOIN article_views av ON a.article_id = av.article_id
                                     WHERE a.article_id = ?`, [user_id, article_id]))?.rows[0];
+
+        //тэги
+        article.tags = (await instance.raw(`SELECT t.tag_id AS tag_id,
+                                   t.note AS note
+                            FROM article_tags at
+                            INNER JOIN tags t ON at.tag_id = t.tag_id
+                            WHERE at.article_id = ?`, [article_id]))?.rows;
+
+        return article;
     }
 
     static async get_seq(instance){
