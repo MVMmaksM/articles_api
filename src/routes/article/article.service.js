@@ -196,13 +196,28 @@ const remove_favorites = async(article_id, user_id)=>{
     await commit_transaction(instance);
 }
 
-const add_comment = async(article_id, user_id, note)=>{
+const add_comment = async(article_id, user_id, note, comment_owner_id)=>{
     const instance = global.instance;
+    let comment;
+   
+    //если прислали ответ
+    if(comment_owner_id){
+        //получаем коммент, на который прислали ответ
+        const owner_comment = await ArticleComments.get_comment_by_id(instance, comment_owner_id);
 
+        //если коммент не найден, то ошибка
+        if(!owner_comment){
+            throw new ArticleCommentsError("Не найден комментарий, на который ссылается ответ");
+        }        
+    }else{
+        //если прислали коммент к статье, а не ответ на коммент
+        comment_owner_id = null;
+    }
+        
     await begin_transaction(instance); 
-    const comment_id = await ArticleComments.add_comment(instance, article_id, user_id, note);
-    const comment = await ArticleComments.get_comment_by_id(instance, comment_id);
-    await commit_transaction(instance);
+    const comment_id = await ArticleComments.add_comment(instance, article_id, user_id, note, comment_owner_id);
+    comment = await ArticleComments.get_comment_by_id(instance, comment_id);
+    await commit_transaction(instance);    
 
     return comment;
 }

@@ -115,6 +115,22 @@ export default class Validator{
         }
     }
 
+    static async comment_owner_id_validate(req, res, next){
+        try{
+            let comment_owner_id = Number(req?.params?.comment_owner_id);
+
+            if(!comment_owner_id)
+                throw new ValidationParamsError("Обязательный параметр comment_owner_id должен быть целым числом");
+
+            if(comment_owner_id < 0 || comment_owner_id == 0)
+                throw new ValidationParamsError("Обязательный параметр comment_owner_id должен быть больше 0");
+
+            next();            
+        }catch(err){
+            next(err);
+        }
+    }
+
     static async body_article_validate(req, res, next){
         try{
             const title = req?.body?.title;

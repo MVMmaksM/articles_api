@@ -111,6 +111,23 @@ article_router.post("/:article_id/comments", Validator.article_id_validate, Vali
     }
 });
 
+//добавление ответа на комментарий
+article_router.post("/:article_id/comments/:comment_owner_id", 
+    Validator.article_id_validate,
+    Validator.comment_owner_id_validate, 
+    Validator.body_article_comment_validate, async(req, res, next)=>{
+    try{
+        const article_id = Number(req.params.article_id);
+        const comment_owner_id = Number(req.params.comment_owner_id);
+        const {note} = req?.body;
+
+        const comment = await add_comment(article_id, req?.user?.user_id, note, comment_owner_id);
+        res.status(201).json(comment);
+    }catch(err){
+        next(err);
+    }
+});
+
 //список комментариев к статье
 article_router.get("/:article_id/comments", 
     Validator.article_id_validate, 

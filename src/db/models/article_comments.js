@@ -1,10 +1,10 @@
 class ArticleComments {
     static table = 'public.article_comments';
 
-    static async add_comment(instance, article_id, user_id, note){
+    static async add_comment(instance, article_id, user_id, note, comment_owner_id){
         const comment_id = await this.get_seq(instance);
-        await instance.raw(`INSERT INTO ${this.table} (comment_id, article_id, user_id, note)
-                            VALUES (?,?,?,?)`, [comment_id, article_id, user_id, note]);
+        await instance.raw(`INSERT INTO ${this.table} (comment_id, article_id, user_id, note, comment_owner_id)
+                            VALUES (?,?,?,?,?)`, [comment_id, article_id, user_id, note, comment_owner_id]);
                             
         return comment_id;
     }
@@ -13,7 +13,8 @@ class ArticleComments {
         return (await instance.raw(`SELECT comment_id,
                                            article_id,
                                            user_id,
-                                           note
+                                           note,
+                                           comment_owner_id
                                     FROM ${this.table}
                                     WHERE comment_id = ?`, [comment_id]))?.rows[0];
     }
@@ -41,7 +42,8 @@ class ArticleComments {
         return (await instance.raw(`SELECT comment_id,
                                            article_id,
                                            user_id,
-                                           note
+                                           note,
+                                           comment_owner_id
                                     FROM ${this.table}
                                     WHERE 1=1 ${where}
                                     LIMIT ?
