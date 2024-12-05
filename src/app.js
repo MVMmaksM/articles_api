@@ -9,9 +9,11 @@ import error_handler from "./middlewares/errors_handler.js";
 import route_not_found from "./middlewares/route_not_found.js";
 import article_tags_router from "./routes/article_tags/article_tags.routes.js";
 import {res_start_time, res_end_time} from "./middlewares/responce_time.js";
+import compression from 'compression';
 
 const app = express();
 app.use(express.json());
+app.use(compression());
 
 const http_port = 5000;
 

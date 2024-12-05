@@ -4,18 +4,28 @@ class Articles{
     static article_views = 'public.article_views';
     static article_favorites = 'public.article_favorites';
 
-    static async get_articles(instance, limit, offset){
+    static async get_articles(instance, limit, offset, is_published){
+        let where = "1=1";
+
+        if(is_published === true){
+            where += " AND is_published=true";
+        }else if(is_published === false){
+            where += " AND is_published=false";
+        }
+
         return (await instance.raw(`SELECT a.article_id,                                             
                                            a.title, 
                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
                                            a.author_id,
-                                           CONCAT(u.first_name, '',u.last_name) AS author_str
-                                  FROM ${this.articles} a
-                                  INNER JOIN users u ON u.user_id = a.author_id
-                                  ORDER BY a.created_on_tz DESC
-                                  LIMIT ?
-                                  OFFSET ?`, [limit ?? 200, offset ?? 0]))?.rows;
+                                           CONCAT(u.first_name, '',u.last_name) AS author_str,
+                                           to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz
+                                    FROM ${this.articles} a
+                                    INNER JOIN users u ON u.user_id = a.author_id
+                                    WHERE ${where}
+                                    ORDER BY a.created_on_tz DESC
+                                    LIMIT ?
+                                    OFFSET ?`, [limit ?? 200, offset ?? 0]))?.rows;
     }
 
     static async get_detail_article(instance, article_id, user_id){
@@ -28,7 +38,9 @@ class Articles{
                                            u.first_name AS author_first_name, 
                                            u.last_name AS author_last_name,                                       
                                            av.count AS count_view,
-                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites                                                             
+                                           EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites,                                           
+                                           to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz,
+                                           a.is_published                                                            
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
                                     INNER JOIN users u ON u.user_id = a.author_id
@@ -87,6 +99,41 @@ class Articles{
         return (await instance.raw(`SELECT COUNT(*)
                                     FROM ${this.articles}
                                     WHERE author_id = ?`, [user_id]))?.rows[0]?.count; 
+    }
+
+    static async get_article_by_id(instance, article_id){
+        return (await instance.raw(`SELECT a.article_id,                                                                                       
+                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
+                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
+                                            a.title,
+                                            a.author_id,
+                                            a.is_published                                                                                                                                                       
+                                    FROM ${this.articles} a                           
+                                    INNER JOIN users u ON u.user_id = a.author_id                           
+                                    WHERE a.article_id = ?`, [article_id]))?.rows[0];
+    }
+
+    static async article_publish(instance, article_id){
+        return (await instance.raw(`UPDATE ${this.articles}
+                                    SET is_published = true
+                                    WHERE article_id = ?`, [article_id]))?.rowCount;
+    }
+
+    static async get_articles_is_only_my(instance, limit, offset, user_id){
+        return (await instance.raw(`SELECT  a.article_id,                                             
+                                            a.title, 
+                                            to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz, 
+                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
+                                            a.author_id,
+                                            CONCAT(u.first_name, '',u.last_name) AS author_str,
+                                            a.is_published,
+                                            to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz
+                                    FROM ${this.articles} a
+                                    INNER JOIN users u ON u.user_id = a.author_id
+                                    WHERE a.author_id = ?
+                                    ORDER BY a.created_on_tz DESC
+                                    LIMIT ?
+                                    OFFSET ?`, [user_id, limit ?? 200, offset ?? 0]))?.rows;
     }
 }
 

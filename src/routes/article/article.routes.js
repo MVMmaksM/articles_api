@@ -8,7 +8,8 @@ import {
     remove_favorites,
     add_comment,
     get_comments,
-    delete_comment } from "./article.service.js"
+    delete_comment,
+    article_publish } from "./article.service.js"
 import express from "express";
 import Validator from "../../validator/validator.js";
 const article_router = express.Router();
@@ -16,7 +17,12 @@ const article_router = express.Router();
 //получение всех статей
 article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
     try{           
-        const articles = await get_articles(req?.query?.limit, req?.query?.offset);
+        const user_id = req?.user?.user_id;  
+        const limit = req?.query?.limit;
+        const offset = req?.query?.offset;
+        const is_only_my = req?.query?.is_only_my;      
+        
+        const articles = await get_articles(limit, offset, user_id, is_only_my);
         res.json(articles);
     }catch(err){
         next(err);
@@ -25,7 +31,7 @@ article_router.get("/", Validator.pagination_validate, async(req, res, next)=>{
 
 //получение детализации статьи
 article_router.get("/:article_id", Validator.article_id_validate, async(req, res, next)=> {
-    try{
+    try{       
         const article_id = Number(req.params.article_id);    
         const article = await get_article_detail(article_id, req?.user?.user_id);
 
@@ -72,6 +78,19 @@ article_router.delete("/:article_id", Validator.article_id_validate, async(req, 
     }catch(err){
         next(err);
     }    
+});
+
+//опубликовать статью
+article_router.post("/:article_id/publish", Validator.article_id_validate, async(req, res, next) =>{
+    try{
+        const article_id = Number(req.params.article_id);
+        const user_id = req?.user?.user_id;
+
+        const article = await article_publish(article_id, user_id);
+        res.json(article);
+    }catch(err){
+        next(err);
+    }
 });
 
 //добавление статьи в избранное

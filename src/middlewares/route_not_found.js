@@ -1,7 +1,7 @@
 const error_route_not_found = {
     name: "Error route not found",
     status_code: 404,
-    error: "Bad Request"
+    error: "Not found"
 }
 
 async function route_not_found (req, res) {

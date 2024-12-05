@@ -57,11 +57,12 @@ CREATE INDEX ix_user_tokens_token ON public.user_tokens USING btree (token);
 
 ALTER TABLE public.user_tokens ADD CONSTRAINT user_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
 
+
 -- public.articles определение
 
 -- Drop table
 
-DROP table if exists  public.articles;
+-- DROP TABLE public.articles;
 
 CREATE TABLE public.articles (
 	article_id serial4 NOT NULL,
@@ -69,6 +70,8 @@ CREATE TABLE public.articles (
 	title varchar(256) NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
 	updated_on_tz timestamp NULL,
+	is_published bool DEFAULT false NULL,
+	is_moderated bool DEFAULT false NULL,
 	CONSTRAINT articles_pkey PRIMARY KEY (article_id)
 );
 CREATE INDEX ix_articles_author_id ON public.articles USING btree (author_id);
@@ -77,6 +80,7 @@ CREATE INDEX ix_articles_author_id ON public.articles USING btree (author_id);
 -- public.articles внешние включи
 
 ALTER TABLE public.articles ADD CONSTRAINT articles_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(user_id);
+
 
 -- public.article_notes определение
 

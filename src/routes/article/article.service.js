@@ -16,27 +16,53 @@ const get_article_detail = async (article_id, user_id)=>{
     const instance = global.instance;
 
     await begin_transaction(instance);
-    //увеличиваем просмотры
-    await ArticleViews.inc_view(instance, article_id);
-    //получаем статью   
-    const article = await Articles.get_detail_article(instance, article_id, user_id);
-    await commit_transaction(instance);
+    const article_detail = await Articles.get_article_by_id(instance, article_id)
 
-    if(!article)
+    //если статья не найдена, то ошибка
+    if(!article_detail)
         throw new ArticleError({
             name: "Error article not found",
             status_code: 404,
             error: "Not found",
             details: "Статья с указанным article_id не найдена"
-    });
+        });
+
+    //если статья неопубликована и юзер не является автором, то ошибка,
+    //т.к. юзер не должен просматривать чужие неопубликованные статьи
+    if(!article_detail?.is_published && article_detail.author_id !== user_id)
+        throw new ArticleError({
+            name: "Error article not found",
+            status_code: 403,
+            error: "Forbidden",
+            details: "У вас нет доступа к данной статье, т.к. просматривать неопубликованные статьи может только автор"
+        });    
+
+    //увеличиваем просмотры
+    await ArticleViews.inc_view(instance, article_id);
+    //получаем статью   
+    const article = await Articles.get_detail_article(instance, article_id, user_id);
+
+    //если юзер не является автором статьи, то убираем свойство "опубликована/не опубликована"
+    if(article?.author_id !== user_id)
+        delete article.is_published;
+    
+    await commit_transaction(instance);   
 
     return article;
 }
 
 //список статей
-const get_articles = async(limit, offset)=>{
+const get_articles = async(limit, offset, user_id, is_only_my)=>{
     const instance = global.instance;
-    return await Articles.get_articles(instance, limit, offset);
+    let articles;
+    
+    if(is_only_my){
+        articles = await Articles.get_articles_is_only_my(instance, limit, offset, user_id)
+    }else{
+        articles = await Articles.get_articles(instance, limit, offset, true)
+    }    
+
+    return articles;
 }
 
 //создание статьи
@@ -170,6 +196,7 @@ const delete_article = async(article_id, user_id)=>{
     await commit_transaction(instance); 
 }
 
+//добавить статью в избранное
 const add_favorites = async(article_id, user_id)=>{
     const instance = global.instance;
     
@@ -183,6 +210,7 @@ const add_favorites = async(article_id, user_id)=>{
     await commit_transaction(instance); 
 } 
 
+//удалить статью из избранного
 const remove_favorites = async(article_id, user_id)=>{
     const instance = global.instance;
     
@@ -196,6 +224,7 @@ const remove_favorites = async(article_id, user_id)=>{
     await commit_transaction(instance);
 }
 
+//добавить коммент к статье
 const add_comment = async(article_id, user_id, note, comment_owner_id)=>{
     const instance = global.instance;
     let comment;
@@ -220,6 +249,44 @@ const add_comment = async(article_id, user_id, note, comment_owner_id)=>{
     await commit_transaction(instance);    
 
     return comment;
+}
+
+//опубликовать статью
+const article_publish = async(article_id, user_id)=>{
+    const instance = global.instance;
+    const article = await Articles.get_article_by_id(instance, article_id);
+
+    if(!article)
+        throw new ArticleError({
+            name: "Error article publish",
+            status_code: 404,
+            error: "Not found",
+            details: "Статья по с указанным article_id не найдена"
+    });
+
+    if(article?.author_id !== user_id){
+        throw new ArticleError({
+            name: "Error article publish",
+            status_code: 403,
+            error: "Forbidden",
+            details: "У вас нет доступа к указанной статье, опубликовать статью может только автор"
+        });
+    }
+
+    if(article?.is_published){
+        throw new ArticleError({
+            name: "Error article publish",
+            status_code: 400,
+            error: "Bad request",
+            details: "Статья уже опубликована"
+        });
+    }
+
+    await begin_transaction(instance); 
+    await Articles.article_publish(instance, article_id);
+    await commit_transaction(instance); 
+
+    return await Articles.get_detail_article(instance, article_id, user_id);
 }
 
 const get_comments = async (article_id, limit, offset, is_only_my, user_id)=>{
@@ -258,4 +325,5 @@ export {
     remove_favorites,
     add_comment,
     get_comments,
-    delete_comment};
+    delete_comment,
+    article_publish};
