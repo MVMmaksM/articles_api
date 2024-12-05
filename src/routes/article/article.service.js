@@ -189,11 +189,11 @@ const delete_article = async(article_id, user_id)=>{
     await ArticleViews.delete_view(instance, article_id);
     //удалем статью
     await Articles.delete_article(instance, article_id);
-    //смотрим на количество статей
-    const count_articles_author = await Articles.get_count_articles(instance, user_id);  
-    //если у автора становится 0 статей после удаления, то он перестает быть автором
+    //смотрим на количество опубликованных статей
+    const count_publish_articles = await Articles.get_count_publish_articles(instance, user_id);  
+    //если у автора становится 0 опубликованных статей после удаления, то он перестает быть автором
     //не попадет в выборку авторов
-    if(Number(count_articles_author) === 0)
+    if(Number(count_publish_articles) === 0)
         await Users.set_is_author(instance, user_id, false);
     
     await commit_transaction(instance); 
@@ -255,7 +255,7 @@ const add_comment = async(article_id, user_id, note, comment_owner_id)=>{
 }
 
 //опубликовать статью
-const article_publish = async(article_id, user_id)=>{
+const article_publish = async(article_id, user)=>{
     const instance = global.instance;
     const article = await Articles.get_article_by_id(instance, article_id);
 
@@ -267,7 +267,7 @@ const article_publish = async(article_id, user_id)=>{
             details: "Статья по с указанным article_id не найдена"
     });
 
-    if(article?.author_id !== user_id){
+    if(article?.author_id !== user?.user_id){
         throw new ArticleError({
             name: "Error article publish",
             status_code: 403,
@@ -286,10 +286,14 @@ const article_publish = async(article_id, user_id)=>{
     }
 
     await begin_transaction(instance); 
+    //публикуем статью
     await Articles.article_publish(instance, article_id);
+    //если пользователь не является автором, то делаем его автором
+    if(!user?.is_author)
+        await Users.set_is_author(instance, user?.user_id, true);
     await commit_transaction(instance); 
 
-    return await Articles.get_detail_article(instance, article_id, user_id);
+    return await Articles.get_detail_article(instance, article_id, user?.user_id);
 }
 
 //снять статью с публикации
@@ -322,7 +326,14 @@ const remove_publish = async(article_id, user_id)=>{
         });
 
     await begin_transaction(instance); 
+    //снимаем статью с публикации
     await Articles.article_remove_publish(instance, article_id);
+    //получаем количество опубликованных статей автора
+    const count_published_articles = await Articles.get_count_publish_articles(instance, user_id);
+    //если ко-во опубликованных статей равно 0
+    //то юзер перестает быть автором
+    if(count_published_articles === 0)
+        await Users.set_is_author(instance, user_id, false);
     await commit_transaction(instance); 
 
     return await Articles.get_detail_article(instance, article_id, user_id);

@@ -85,9 +85,9 @@ article_router.delete("/:article_id", Validator.article_id_validate, async(req, 
 article_router.post("/:article_id/publish", Validator.article_id_validate, async(req, res, next) =>{
     try{
         const article_id = Number(req.params.article_id);
-        const user_id = req?.user?.user_id;
+        const user = req?.user;
 
-        const article = await article_publish(article_id, user_id);
+        const article = await article_publish(article_id, user);
         res.json(article);
     }catch(err){
         next(err);

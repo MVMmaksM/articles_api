@@ -96,10 +96,10 @@ class Articles{
                             [note, article_id]);
     }
 
-    static async get_count_articles(instance, user_id){
+    static async get_count_publish_articles(instance, user_id){
         return (await instance.raw(`SELECT COUNT(*)
                                     FROM ${this.articles}
-                                    WHERE author_id = ?`, [user_id]))?.rows[0]?.count; 
+                                    WHERE author_id = ? AND is_published = true`, [user_id]))?.rows[0]?.count; 
     }
 
     static async get_article_by_id(instance, article_id){
