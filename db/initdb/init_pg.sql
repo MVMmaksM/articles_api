@@ -57,7 +57,6 @@ CREATE INDEX ix_user_tokens_token ON public.user_tokens USING btree (token);
 
 ALTER TABLE public.user_tokens ADD CONSTRAINT user_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id);
 
-
 -- public.articles определение
 
 -- Drop table
@@ -72,6 +71,8 @@ CREATE TABLE public.articles (
 	updated_on_tz timestamp NULL,
 	is_published bool DEFAULT false NULL,
 	is_moderated bool DEFAULT false NULL,
+	published_on_tz timestamp NULL,
+	remove_published_on_tz timestamp NULL,
 	CONSTRAINT articles_pkey PRIMARY KEY (article_id)
 );
 CREATE INDEX ix_articles_author_id ON public.articles USING btree (author_id);

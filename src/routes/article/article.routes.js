@@ -9,7 +9,8 @@ import {
     add_comment,
     get_comments,
     delete_comment,
-    article_publish } from "./article.service.js"
+    article_publish,
+    remove_publish } from "./article.service.js"
 import express from "express";
 import Validator from "../../validator/validator.js";
 const article_router = express.Router();
@@ -87,6 +88,19 @@ article_router.post("/:article_id/publish", Validator.article_id_validate, async
         const user_id = req?.user?.user_id;
 
         const article = await article_publish(article_id, user_id);
+        res.json(article);
+    }catch(err){
+        next(err);
+    }
+});
+
+//снять статью с публикации
+article_router.post("/:article_id/remove_publish", Validator.article_id_validate, async(req, res, next) => {
+    try{
+        const article_id = Number(req.params.article_id);
+        const user_id = req?.user?.user_id;
+        const article = await remove_publish(article_id, user_id);
+
         res.json(article);
     }catch(err){
         next(err);

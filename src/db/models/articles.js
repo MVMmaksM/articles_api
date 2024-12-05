@@ -40,6 +40,7 @@ class Articles{
                                            av.count AS count_view,
                                            EXISTS (SELECT 1 FROM ${this.article_favorites} WHERE article_id = a.article_id AND user_id = ?) AS is_favorites,                                           
                                            to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz,
+                                           to_char(a.remove_published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS remove_published_on_tz,
                                            a.is_published                                                            
                                     FROM ${this.articles} a
                                     INNER JOIN ${this.article_notes} an ON a.article_id = an.article_id
@@ -115,7 +116,7 @@ class Articles{
 
     static async article_publish(instance, article_id){
         return (await instance.raw(`UPDATE ${this.articles}
-                                    SET is_published = true
+                                    SET is_published = true, published_on_tz = now() AT TIME ZONE 'utc'::text, remove_published_on_tz = NULL
                                     WHERE article_id = ?`, [article_id]))?.rowCount;
     }
 
@@ -134,6 +135,12 @@ class Articles{
                                     ORDER BY a.created_on_tz DESC
                                     LIMIT ?
                                     OFFSET ?`, [user_id, limit ?? 200, offset ?? 0]))?.rows;
+    }
+
+    static async article_remove_publish(instance, article_id){
+        return (await instance.raw(`UPDATE ${this.articles}
+                                    SET is_published = false, remove_published_on_tz = now() AT TIME ZONE 'utc'::text
+                                    WHERE article_id = ?`, [article_id]))?.rowCount;
     }
 }
 

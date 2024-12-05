@@ -43,8 +43,11 @@ const get_article_detail = async (article_id, user_id)=>{
     const article = await Articles.get_detail_article(instance, article_id, user_id);
 
     //если юзер не является автором статьи, то убираем свойство "опубликована/не опубликована"
-    if(article?.author_id !== user_id)
-        delete article.is_published;
+    //и дату снятия с публикации
+    if(article?.author_id !== user_id){
+        delete article?.is_published;
+        delete article?._remove_published_on_tz;
+    }        
     
     await commit_transaction(instance);   
 
@@ -289,6 +292,42 @@ const article_publish = async(article_id, user_id)=>{
     return await Articles.get_detail_article(instance, article_id, user_id);
 }
 
+//снять статью с публикации
+const remove_publish = async(article_id, user_id)=>{
+    const instance = global.instance;
+    const article = await Articles.get_article_by_id(instance, article_id);
+
+    if(!article)
+        throw new ArticleError({
+            name: "Error article remove publish",
+            status_code: 404,
+            error: "Not found",
+            details: "Статья по с указанным article_id не найдена"
+    });
+
+    if(article?.author_id !== user_id)
+        throw new ArticleError({
+            name: "Error article remove publish",
+            status_code: 403,
+            error: "Forbidden",
+            details: "У вас нет доступа к указанной статье, снять статью с публикации может только автор"
+        });
+
+    if(!article?.is_published)
+        throw new ArticleError({
+            name: "Error article remove publish",
+            status_code: 400,
+            error: "Bad request",
+            details: "Статья уже снята с публикации"
+        });
+
+    await begin_transaction(instance); 
+    await Articles.article_remove_publish(instance, article_id);
+    await commit_transaction(instance); 
+
+    return await Articles.get_detail_article(instance, article_id, user_id);
+}
+
 const get_comments = async (article_id, limit, offset, is_only_my, user_id)=>{
     const instance = global.instance;
 
@@ -326,4 +365,5 @@ export {
     add_comment,
     get_comments,
     delete_comment,
-    article_publish};
+    article_publish,
+    remove_publish};
