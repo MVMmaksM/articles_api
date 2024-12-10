@@ -21,6 +21,7 @@
   "homepage": "https://github.com/MVMmaksM/articles_api#readme",
   "devDependencies": {
     "compression": "^1.7.5",
+    "cors": "^2.8.5",
     "express": "^4.21.1",
     "is-base64": "^1.1.0",
     "knex": "^3.1.0",
