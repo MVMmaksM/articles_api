@@ -8,6 +8,7 @@ import create_instance from "./db/create_instance.js";
 import error_handler from "./middlewares/errors_handler.js";
 import route_not_found from "./middlewares/route_not_found.js";
 import article_tags_router from "./routes/article_tags/article_tags.routes.js";
+import profile_router from "./routes/profile/profile.routes.js";
 import {res_start_time, res_end_time} from "./middlewares/responce_time.js";
 import cors from 'cors';
 
@@ -33,6 +34,7 @@ app.use("/", authorize);
 app.use("/api/v1/articles", article_router);
 app.use("/api/v1/authors", author_router);
 app.use("/api/v1/article_tags", article_tags_router);
+app.use("/api/v1/profile", profile_router)
 
 //обработчик ошибок
 app.use("/", error_handler);

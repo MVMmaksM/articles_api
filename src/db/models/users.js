@@ -41,16 +41,15 @@ class Users {
     
     static async get_user_by_id(instance, user_id){
         return (await instance.raw(`SELECT user_id,
-                             login,
-                             password,
-                             phone,
-                             to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz,
-                             first_name,
-                             last_name,
-                             is_confirm,
-                             is_author 
-                      FROM ${this.table}
-                      WHERE user_id = ?`, [user_id]))?.rows[0];
+                                           login,                             
+                                           phone,
+                                           to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz,
+                                           first_name,
+                                           last_name,
+                                           is_confirm,
+                                           is_author 
+                                    FROM ${this.table}
+                                    WHERE user_id = ?`, [user_id]))?.rows[0];
     }
 
     static async set_is_author(instance, user_id, is_author){     
@@ -69,6 +68,23 @@ class Users {
                                     ORDER BY u.user_id DESC
                                     LIMIT ?
                                     OFFSET ?`, [limit, offset]))?.rows;
+    }
+
+    static async get_profile(instance, user_id){
+        return (await instance.raw(`SELECT 
+                                        u.user_id,
+                                        u.login,                             
+                                        u.phone,
+                                        to_char(u.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz,
+                                        u.first_name,
+                                        u.last_name,
+                                        u.is_confirm,
+                                        u.is_author,
+                                        (SELECT COUNT(*) FROM articles WHERE author_id = u.user_id AND is_published = true) AS count_published_articles,
+                                        (SELECT COUNT(*) FROM articles WHERE author_id = u.user_id) AS count_articles,
+                                        (SELECT COUNT(*) FROM articles WHERE author_id = u.user_id AND is_published = false) AS count_not_published_articles
+                                    FROM ${this.table} AS u
+                                    WHERE u.user_id = ?`, [user_id]))?.rows[0];
     }
 }
 
