@@ -19,9 +19,12 @@ class Articles{
                                            to_char(a.updated_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS updated_on_tz,
                                            a.author_id,
                                            CONCAT(u.first_name, '',u.last_name) AS author_str,
-                                           to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz
+                                           to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz,
+                                           av.count AS count_view,
+                                           (SELECT COUNT(*) FROM article_comments WHERE article_id = a.article_id) AS count_comments
                                     FROM ${this.articles} a
                                     INNER JOIN users u ON u.user_id = a.author_id
+                                    INNER JOIN article_views av ON a.article_id = av.article_id
                                     WHERE ${where}
                                     ORDER BY a.created_on_tz DESC
                                     LIMIT ?
@@ -128,9 +131,12 @@ class Articles{
                                             a.author_id,
                                             CONCAT(u.first_name, '',u.last_name) AS author_str,
                                             a.is_published,
-                                            to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz
+                                            to_char(a.published_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS published_on_tz,
+                                            av.count AS count_view,
+                                            (SELECT COUNT(*) FROM article_comments WHERE article_id = a.article_id) AS count_comments
                                     FROM ${this.articles} a
                                     INNER JOIN users u ON u.user_id = a.author_id
+                                    INNER JOIN article_views av ON a.article_id = av.article_id
                                     WHERE a.author_id = ?
                                     ORDER BY a.created_on_tz DESC
                                     LIMIT ?
