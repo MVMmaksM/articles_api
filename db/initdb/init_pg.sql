@@ -23,7 +23,7 @@ CREATE INDEX ix_users_phone ON public.users USING btree (phone);
 
 -- Drop table
 
-DROP table if exists public.confirmation_codes;
+-- DROP TABLE public.confirmation_codes;
 
 CREATE TABLE public.confirmation_codes (
 	code_id uuid NOT NULL,
@@ -31,6 +31,8 @@ CREATE TABLE public.confirmation_codes (
 	code int4 NOT NULL,
 	created_on_tz timestamp DEFAULT (now() AT TIME ZONE 'utc'::text) NOT NULL,
 	used_on_tz timestamp NULL,
+	is_reg bool NULL,
+	is_auth bool NULL,
 	CONSTRAINT confirmation_codes_pkey PRIMARY KEY (code_id)
 );
 CREATE INDEX ix_confirmation_code ON public.confirmation_codes USING btree (code);

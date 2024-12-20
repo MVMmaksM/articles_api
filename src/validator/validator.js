@@ -75,7 +75,7 @@ export default class Validator{
                 throw new VAlidationHeadersError(`Не передан код подтверждения`);
 
             if(!is_base64(confirm_cred))
-                throw new VAlidationHeadersError(`Обязательный заголовок ${key_hedears} в headers не является строкой в кодировке base64`); 
+                throw new ValidationHeadersError(`Обязательный заголовок ${key_hedears} в headers не является строкой в кодировке base64`); 
 
             confirm_cred = Buffer.from(confirm_cred, "base64").toString();
             confirm_cred = confirm_cred?.split(":");

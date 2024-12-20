@@ -7,12 +7,12 @@ class Users {
                                                  login,
                                                  password,
                                                  phone,
-                                                 to_char(a.created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz,
+                                                 to_char(created_on_tz, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS created_on_tz,
                                                  first_name,
                                                  last_name,
                                                  is_confirm,
                                                  is_author 
-                                          FROM ${table} 
+                                          FROM ${this.table} 
                                           WHERE phone = ?`, [phone]);
         return users?.rows[0];
     }
