@@ -5,6 +5,7 @@
   "description": "articles_api",
   "main": "app.js",
   "scripts": {
+    "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "watch"
@@ -26,6 +27,7 @@
     "is-base64": "^1.1.0",
     "knex": "^3.1.0",
     "md5": "^2.3.0",
+    "nodemon": "^3.1.9",
     "pg": "^8.13.0",
     "uuid": "^10.0.0"
   }
